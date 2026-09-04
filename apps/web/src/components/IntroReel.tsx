@@ -29,7 +29,7 @@ const T_BEAT_2 = 1500; // pop in + hold + drop out
 const T_CHAR = 42; // typewriter — per character
 const T_SPACE = 92; // …slower on spaces / punctuation, for rhythm
 const T_SETTLE = 350; // beat after the last character before the tagline "holds"
-const T_TAG_HOLD = 1500; // how long the finished tagline sits before beat 4
+const T_TAG_HOLD = 3000; // how long the finished tagline sits before beat 4 (the payoff line — let it linger)
 const T_DREAM_HOLD = 2600; // how long beat 4 sits before the loop restarts
 
 type Phase = "beat1" | "beat2" | "typing" | "tag" | "dream";
