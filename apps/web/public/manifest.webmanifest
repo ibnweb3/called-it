@@ -1,0 +1,26 @@
+{
+  "name": "Called It",
+  "short_name": "Called It",
+  "description": "A 15-minute tap game. Call Bitcoin up or down, keep your streak, play your friends.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7efdd",
+  "theme_color": "#ffc53d",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

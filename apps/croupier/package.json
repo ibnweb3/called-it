@@ -1,0 +1,21 @@
+{
+  "name": "croupier",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The bot that keeps a Called It game running every round — a two-sided post-only maker on DreamDEX event contracts, funded by the Float.",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dreamdex-bot-kit/ec-core": "*",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0"
+  }
+}

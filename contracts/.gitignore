@@ -1,0 +1,6 @@
+# Foundry build artifacts
+out/
+cache/
+broadcast/
+
+# lib/ IS committed so a fresh clone builds with no `forge install` step

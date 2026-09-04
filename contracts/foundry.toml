@@ -1,0 +1,28 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+solc = "0.8.28"
+optimizer = true
+optimizer_runs = 20_000
+via_ir = false
+bytecode_hash = "none"
+gas_reports = ["CalledItFloat"]
+fs_permissions = [{ access = "read", path = "./" }]
+
+remappings = [
+  "@openzeppelin/=lib/openzeppelin-contracts/",
+  "forge-std/=lib/forge-std/src/",
+]
+
+[fmt]
+line_length = 110
+tab_width = 4
+bracket_spacing = true
+int_types = "long"
+
+[profile.ci]
+verbosity = 3
+fuzz = { runs = 1000 }

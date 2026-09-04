@@ -1,0 +1,44 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.cache/
+
+# backend SQLite cache (rebuildable from chain)
+*.db
+*.db-shm
+*.db-wal
+
+# foundry build output
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+
+# secrets & local state — never commit these
+.env
+.env.*
+!.env.example
+*.key
+keystore.json
+.state/
+logs/
+artifacts/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# os
+.DS_Store
+
+# local editor / agent tooling
+.cursor/
+.claude/
+
+# local snapshots / archives
+*.zip
+
+# python build artifacts
+*.egg-info/
+.pytest_cache/

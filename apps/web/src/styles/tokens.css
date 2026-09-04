@@ -1,0 +1,118 @@
+/* Called It — midnight arcade.
+ *
+ * A deep-purple field lifted from flipt.fun (radial gradient in app.css). The
+ * cartoon language survives the dark ground by flipping the pen: neutral
+ * surfaces are raised purple panels with a light lavender outline, while the
+ * hard offset shadow is a near-black block that only bites where an element
+ * sits on a lighter panel. Bright accent fills (gold / green / red / sky) keep
+ * their dark ink outline and dark text — they read the same on any ground.
+ *
+ * Colour rules that are not negotiable (SPEC §7):
+ *   - green means UP and red means DOWN. Never decoration, always paired with
+ *     an arrow and the word.
+ *   - gold is the warm accent; sky blue is the cool one.
+ */
+
+:root {
+  /* ground — flipt.fun's deep-purple field (radial gradient applied in app.css) */
+  --paper: #150320;
+  --paper-2: #1d0629;
+  --paper-glow: #35104a;
+
+  /* raised panels sit clearly above the ground; -2 is the inset/sunken tone */
+  --surface: #2c1c40;
+  --surface-2: #1e1030;
+
+  /* the pen splits on dark:
+   *   --ink    near-black — the hard offset shadow, plus outline + text on
+   *            bright accent fills (unchanged there)
+   *   --border light lavender — the outline on every neutral surface
+   *   --edge   the offset-shadow colour (own token so the whole set moves at once)
+   */
+  --ink: #0b0416;
+  --border: #8b74b8;
+  --edge: #0b0416;
+  --ink-soft: #b6a6d4;
+  --ink-faint: #6f5f8c;
+
+  /* text */
+  --text: #f1ecfa;
+  --text-dim: #a99bc4;
+
+  /* accents */
+  --gold: #ffc53d;
+  --gold-deep: #ffd875;
+  --sky: #6fd3f7;
+  --sky-deep: #9ee4fb;
+  --grape: #a888f7;
+  --pop: #ff7bac;
+  --clay: #d98a5a;
+
+  /* semantics — UP / DOWN / VOID */
+  --up: #35c77b;
+  --up-deep: #4ee49a;
+  --down: #ff5f57;
+  --down-deep: #ff8079;
+  --void: #9a90ad;
+
+  /* sticker construction */
+  --line: 3px;
+  --line-thin: 2px;
+  --r-sm: 10px;
+  --r: 16px;
+  --r-lg: 22px;
+  --r-pill: 999px;
+  --pop-shadow: 5px 5px 0 var(--edge);
+  --pop-shadow-sm: 3px 3px 0 var(--edge);
+  --pop-shadow-lg: 8px 8px 0 var(--edge);
+
+  /* type — a cartoon display face, a clean body face, mono for every number */
+  --font-display: "Fredoka", "Baloo 2", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* motion */
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-stretch: cubic-bezier(0.22, 1, 0.36, 1);
+  --idle-slow: 9s;
+  --idle: 6s;
+  --idle-fast: 3.5s;
+
+  color-scheme: dark;
+}
+
+/* --------------------------------------------------------- idle loops ----
+ * Long, small, and out of phase with each other, so the page breathes without
+ * ever being busy.
+ */
+
+@keyframes blink {
+  0%, 92% { opacity: 0; }
+  93%, 94% { opacity: 1; }
+  95%, 97% { opacity: 0.1; }
+  98%, 100% { opacity: 0; }
+}
+
+@keyframes eyeball-move {
+  0%, 60%, 100% { transform: translateX(0); }
+  70%, 80% { transform: translateX(2.5px); }
+}
+
+@keyframes head-wobble {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  25% { transform: rotate(2deg) translateX(1px); }
+  50% { transform: rotate(-1.5deg) translateX(-1px); }
+  75% { transform: rotate(1deg) translateX(0.5px); }
+}
+
+@keyframes sign-wobble {
+  0%, 80%, 100% { transform: rotate(0); }
+  10% { transform: rotate(2.5deg); }
+  20% { transform: rotate(-2.5deg); }
+  30% { transform: rotate(1.5deg); }
+  40% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(0.6deg); }
+  60% { transform: rotate(-0.6deg); }
+  70% { transform: rotate(0); }
+}

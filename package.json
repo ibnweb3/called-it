@@ -1,0 +1,29 @@
+{
+  "name": "called-it",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Called It — a 15-minute tap game on DreamDEX Event Contracts. Fork of dreamdex-bot-kit.",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "croupier": "npm run start -w croupier",
+    "croupier:dev": "npm run dev -w croupier",
+    "backend": "npm run start -w backend",
+    "backend:dev": "npm run dev -w backend",
+    "web:dev": "npm run dev -w web",
+    "web:build": "npm run build -w web",
+    "chain:typecheck": "npm run typecheck -w @called-it/chain",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "contracts:build": "cd contracts && forge build",
+    "contracts:test": "cd contracts && forge test"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0"
+  }
+}
