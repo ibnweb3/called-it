@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Btn, Bubble, Label, Sticker, Tape } from "@/components/kit";
+import { IntroReel } from "@/components/IntroReel";
 import { Mascot } from "@/components/Mascot";
 import { Wordmark } from "@/components/Wordmark";
 import { FAUCET_URL, IS_TESTNET } from "@/lib/env";
@@ -62,9 +63,7 @@ export function Onboarding() {
             <Mascot mood="idle" size={92} />
             <h1 className="sr-only">Called It</h1>
             <Wordmark size={190} />
-            <p style={{ fontSize: 18, maxWidth: 300 }}>
-              Did you CALLED IT? One tap. Fifteen minutes. Up or down?
-            </p>
+            <IntroReel />
             <Btn tone="gold" block onClick={() => setStep(1)}>
               Make your first call →
             </Btn>

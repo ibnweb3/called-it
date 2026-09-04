@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Btn } from "./components/kit";
+import { IntroReel } from "./components/IntroReel";
 import { Wordmark } from "./components/Wordmark";
 import { CallFlow } from "./components/CallFlow";
 import { ResultScreen } from "./components/ResultScreen";
@@ -130,9 +131,7 @@ export default function App() {
             is hidden from the tab order and from assistive tech */}
         <div className="hero" aria-hidden="true">
           <Wordmark className="hero-mark" />
-          <p className="hero-tag">
-            Call Bitcoin up or down. One tap, fifteen minutes, and a streak worth bragging about.
-          </p>
+          <IntroReel />
         </div>
 
         <div className="game-box">
