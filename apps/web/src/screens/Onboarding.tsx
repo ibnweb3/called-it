@@ -63,7 +63,7 @@ export function Onboarding() {
             <h1 className="sr-only">Called It</h1>
             <Wordmark size={190} />
             <p style={{ fontSize: 18, maxWidth: 300 }}>
-              Bitcoin goes up or it goes down. You get one tap and fifteen minutes to say which.
+              Did you CALLED IT? One tap. Fifteen minutes. Up or down?
             </p>
             <Btn tone="gold" block onClick={() => setStep(1)}>
               Make your first call →
