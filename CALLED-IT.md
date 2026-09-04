@@ -5,12 +5,13 @@ fixed window, play your friends, get paid when you're right. A bot (**the
 Croupier**) keeps a game running every round so a player never sees an empty
 market.
 
-This repo is a **fork of [`somnia-chain/dreamdex-bot-kit`](https://github.com/somnia-chain/dreamdex-bot-kit)**.
-The kit's `packages/`, `strategies/` and `docs/` are upstream and mostly
-untouched; Called It lives in new workspaces:
+Called It began as a fork of [`somnia-chain/dreamdex-bot-kit`](https://github.com/somnia-chain/dreamdex-bot-kit)
+and is now a **standalone repo**. It still builds on the kit's event-contract
+layer: `packages/ec-core` is kept from upstream (MIT — see [`NOTICE`](NOTICE)),
+and `apps/croupier` is a fork of the kit's `ec-maker`. Everything else is new.
 
 ```
-packages/ec-core/     upstream — the event-contract SDK wrapper we build on
+packages/ec-core/     from dreamdex-bot-kit (MIT) — event-contract helpers over @somnia-chain/markets-sdk
 packages/chain/       NEW  @called-it/chain — typed "rounds / calls / chips" API (Node + browser)
 apps/croupier/        NEW  the market-maker bot (fork of ec-maker)
 contracts/            NEW  Foundry — CalledItFloat.sol (the Float vault), 20 tests
@@ -19,21 +20,18 @@ apps/web/             NEW  the player PWA — Vite + React, cartoon styling, dem
 apps/telegram/        (Phase 4) grammY command bot
 ```
 
-Full concept: [`../called-it-spec.md`](../called-it-spec.md).
-
 ## Decisions (locked)
 
 | | |
 |---|---|
 | Network | **Testnet first** (Somnia Shannon, chain 50312). Mainnet is Phase 5. |
 | Player wallet (v1) | **Connect an injected wallet** (EIP-1193 — MetaMask, OKX, Rabby). The player funds their own wallet from the faucet; every call is signed there, on Somnia; the app holds no key and the backend never holds keys. _(Superseded the browser-burner design 2026-09-02 — "connect only, injected only".)_ WalletConnect and EIP-7702 session keys are v2. |
-| Repo | Fork of dreamdex-bot-kit, Called It as new workspaces. |
+| Repo | Standalone — [`github.com/ibnweb3/called-it`](https://github.com/ibnweb3/called-it). Began as a dreamdex-bot-kit fork; `packages/ec-core` retained under MIT (see [`NOTICE`](NOTICE)). |
 
 ## Build status
 
-- [x] **Phase 0** scaffold — repo forked, `apps/*` workspace wired, installs + typechecks
-- [ ] **Phase 0** ground truth — run `ec:doctor` + `ec-maker` on live testnet, record venue facts (see below)
-- [x] **Phase 0** ground truth — `@called-it/chain` verified live against testnet via the backend indexer (see findings below). `ec:doctor` / browser-SDK / croupier dry-run still owed.
+- [x] **Phase 0** scaffold — `apps/*` + `packages/*` workspaces wired, installs + typechecks
+- [x] **Phase 0** ground truth — `@called-it/chain` verified live against testnet via the backend indexer (see findings below). Browser-SDK runtime / croupier dry-run still owed.
 - [x] **Phase 1.1** `@called-it/chain` — `currentRounds` / `placeCall` / `positions` / `settledRounds` / `claim`. **Reads verified live** (rounds, books, settlements, results). `placeCall` / `claim` still need a funded burner to exercise.
 - [x] **Phase 1.2** `apps/croupier` — ec-maker fork with fair-value control + daily-loss kill switch (typechecks; **dry-run not yet verified**)
 - [x] **Phase 1.3** `CalledItFloat.sol` + 20 Foundry tests (all pass, 1000-run fuzz clean). **Not deployed, not audited.**
@@ -46,12 +44,13 @@ Full concept: [`../called-it-spec.md`](../called-it-spec.md).
 ## Run
 
 ```bash
-npm install                       # from repo root — builds upstream core too
+npm install                       # from repo root
 
-# repo-root .env (copy .env.example): set at least
+# the croupier reads a repo-root .env (git-ignored). Create one with at least:
 #   NETWORK=testnet
 #   VENUE_ID=0x...            (verify against a live market row — these move)
 #   PRIVATE_KEY=0x...         (a funded testnet key; needs STT gas + it faucets tUSDC)
+# its own knobs (spread, size, kill switch) can live there too — see apps/croupier/.env.example
 
 npm run croupier                  # DRY_RUN defaults to true — logs quotes it would place
 DRY_RUN=false npm run croupier    # live two-sided quoting on BTC 15m
@@ -94,8 +93,16 @@ Verified against live testnet (2026-09-01) by running the backend indexer:
 | Browser bundle | `@somnia-chain/markets-sdk` **does bundle for a browser** — `vite build` in `apps/web` resolves it into a 376 kB dynamic chunk with no externalised node builtins. The *runtime* half (signing + broadcasting a call from a funded burner in a real browser) is still unproven. |
 | Price feed | The SDK's bundled testnet feed (`price-feed.dev.oracle.somnia.host`) is now in the testnet preset's `priceFeedUrl`, so `livePrice()` / `GET /v1/price/:asset` work without config. Verified live: BTC `77583.75`, ETH `2421.31`. **Mainnet has no bundled endpoint** — `livePrice()` returns null there until one is supplied. |
 
-Still owed: `npm run ec:doctor`; a burner-signed call actually landing from the
-browser; croupier dry-run soak.
+Still owed: a wallet-signed call actually landing from the browser; croupier
+dry-run soak.
+
+## License & provenance
+
+MIT — see [`LICENSE`](LICENSE). Called It's own code (`apps/web`, `apps/backend`,
+`packages/chain`, `contracts/`) is © the Called It contributors; retained
+dreamdex-bot-kit code (`packages/ec-core`, the `ec-maker` fork under
+`apps/croupier`) is © DreamDEX S.A., used under MIT. Third-party components and
+their licenses are listed in [`NOTICE`](NOTICE).
 
 ## Not financial advice, not audited
 

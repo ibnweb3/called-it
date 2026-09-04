@@ -1,0 +1,56 @@
+Called It
+=========
+
+Called It is distributed under the MIT License (see LICENSE). This file records
+the provenance of code that is not original to Called It.
+
+
+Derived from dreamdex-bot-kit
+-----------------------------
+
+The following are derived from somnia-chain/dreamdex-bot-kit
+(https://github.com/somnia-chain/dreamdex-bot-kit), Copyright (c) 2026
+DreamDEX S.A., used under the MIT License:
+
+  packages/ec-core/     Kept largely unmodified — the event-contract helpers
+                        wrapping @somnia-chain/markets-sdk. Individual source
+                        files retain their "Copyright DreamDEX S.A." headers.
+
+  apps/croupier/        Forked from the kit's `ec-maker` strategy, then extended
+                        for Called It (fair-value control, daily-loss kill
+                        switch, the CalledItFloat borrow/settle hook).
+
+Called It began as a fork of dreamdex-bot-kit; it is now a standalone repository
+and does not track upstream history.
+
+
+Original to Called It
+---------------------
+
+Copyright (c) 2026 ibnweb3 and the Called It contributors, MIT:
+
+  apps/web/             the player PWA
+  apps/backend/         indexer + REST/WS API + Telegram notifier
+  packages/chain/       @called-it/chain
+  contracts/src/        CalledItFloat.sol
+  contracts/test/       Foundry tests
+  contracts/script/     deploy script
+
+
+Third-party components
+----------------------
+
+  @somnia-chain/markets-sdk
+      npm dependency. Under its own license (see node_modules/@somnia-chain/
+      markets-sdk after install).
+
+  contracts/lib/openzeppelin-contracts
+      OpenZeppelin Contracts. MIT License.
+      Copyright (c) 2016-2024 Zeppelin Group Ltd.
+
+  contracts/lib/forge-std
+      Forge Standard Library. Dual-licensed MIT OR Apache-2.0.
+      Copyright Contributors to Forge Standard Library.
+
+  Other npm dependencies are under their respective licenses; see the
+  "license" fields resolved in package-lock.json.
