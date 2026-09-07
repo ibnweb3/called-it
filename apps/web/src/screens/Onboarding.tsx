@@ -61,12 +61,12 @@ export function Onboarding({
 
   return (
     <div className={`app${step === 0 ? " app-chooser" : ""}`}>
-      <div className="screen" style={{ paddingTop: 26, gap: 18 }}>
+      <div className="screen" style={{ paddingTop: step === 0 ? 16 : 26, gap: 18 }}>
         {IS_TESTNET && step !== 0 && <Tape>testnet · play money</Tape>}
 
         {step === 0 && (
-          <div className="stack center" style={{ gap: 20 }}>
-            <div className="stack center" style={{ gap: 6 }}>
+          <div className="stack center" style={{ gap: 14 }}>
+            <div className="stack center" style={{ gap: 4 }}>
               <h1 className="sr-only">Called It</h1>
               <IntroReel />
               {IS_TESTNET && <p className="dim tiny">testnet · play money</p>}
@@ -87,7 +87,7 @@ export function Onboarding({
                   🏠
                 </span>
                 <h2>Own the house</h2>
-                <p>Deposit {STAKE_SYMBOL}. A bot makes the market with the pool — you earn its edge.</p>
+                <p>Deposit {STAKE_SYMBOL}. A bot works the pool; you earn the house's edge.</p>
                 <span className="chooser-cta chooser-cta-sky">Open Housepool →</span>
               </a>
             </div>

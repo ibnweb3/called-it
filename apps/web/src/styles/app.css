@@ -388,48 +388,47 @@ button.wordmark:focus-visible {
  * by side once there's room, stacked on a phone. The whole card lifts on hover
  * and squashes into its shadow on press (the sticker language).
  */
-.chooser { display: grid; gap: 14px; width: 100%; }
+.chooser { display: grid; gap: 12px; width: 100%; }
 .chooser-card {
   /* reset the <button>/<a> the card is built on */
   appearance: none; font: inherit; color: inherit; text-decoration: none; cursor: pointer;
   display: grid; justify-items: center; align-content: start; text-align: center;
-  gap: 11px; padding: 26px 20px;
+  gap: 8px; padding: 18px 18px;
   transition: transform 0.12s var(--ease-out), box-shadow 0.12s var(--ease-out);
 }
 .chooser-card:hover { transform: translateY(-4px); box-shadow: var(--pop-shadow-lg); }
 .chooser-card:active { transform: translateY(2px); box-shadow: var(--pop-shadow-sm); }
 .chooser-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
-.chooser-card h2 { font-size: 23px; text-wrap: balance; }
-.chooser-card p { font-size: 14px; color: var(--text-dim); line-height: 1.5; margin: 0; text-wrap: pretty; }
+.chooser-card h2 { font-size: 20px; text-wrap: balance; }
+.chooser-card p { font-size: 13px; color: var(--text-dim); line-height: 1.45; margin: 0; text-wrap: pretty; }
 .chooser-mark {
-  width: 84px; height: 84px; border-radius: 50%;
+  width: 66px; height: 66px; border-radius: 50%;
   background: var(--gold); border: var(--line) solid var(--ink);
-  display: grid; place-items: center; font-size: 38px;
+  display: grid; place-items: center; font-size: 30px;
   box-shadow: var(--pop-shadow-sm);
 }
 .chooser-cta {
-  margin-top: 6px; width: 100%;
-  font-family: var(--font-display); font-weight: 700; font-size: 15px;
+  margin-top: 4px; width: 100%;
+  font-family: var(--font-display); font-weight: 700; font-size: 14px;
   background: var(--gold); color: var(--ink);
   border: var(--line) solid var(--ink); border-radius: var(--r-pill);
   box-shadow: var(--pop-shadow-sm);
-  padding: 12px 14px; white-space: nowrap;
+  padding: 10px 12px; white-space: nowrap;
 }
 .chooser-cta-sky { background: var(--sky); }
 .chooser-card:hover .chooser-cta { filter: brightness(1.05); }
 
 @media (min-width: 680px) {
-  .app-chooser { max-width: 720px; }
+  .app-chooser { max-width: 700px; }
   .chooser { grid-template-columns: 1fr 1fr; align-items: stretch; }
   .chooser-card { align-content: space-between; }
-  .chooser-card p { min-height: 4.4em; }
 }
 @media (prefers-reduced-motion: reduce) {
   .chooser-card, .chooser-card:hover, .chooser-card:active { transform: none; }
 }
 
 /* ---------------------------------------- step-0 "how it works" + FAQ -- */
-.learn-wrap { display: grid; gap: 8px; width: 100%; max-width: 520px; margin: 4px auto 0; text-align: left; }
+.learn-wrap { display: grid; gap: 8px; width: 100%; max-width: 520px; margin: 2px auto 0; text-align: left; }
 .learn, .faq-q {
   background: var(--surface); border: var(--line-thin) solid var(--border);
   border-radius: var(--r); padding: 12px 14px;
@@ -1091,9 +1090,9 @@ button.wordmark:focus-visible {
   text-align: center;
 }
 .intro-stage {
-  /* holds the tallest beat (the tagline, which wraps to 3 lines at this size)
-   * so the CTA below never jumps as the beats swap */
-  min-height: 90px;
+  /* holds the tallest beat (the tagline, which wraps to 2 lines at this size)
+   * so what's below never jumps as the beats swap */
+  min-height: 66px;
   display: flex;
   align-items: center;
   justify-content: center;
