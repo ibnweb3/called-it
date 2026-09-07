@@ -182,3 +182,29 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
 .toast.good { background: var(--up); color: var(--ink); border-color: var(--ink); }
 
 .footer { text-align: center; color: var(--ink-faint); font-size: 11px; }
+
+/* ------------------------------------------------------- how it works / faq */
+
+.steps-list { display: grid; gap: 12px; }
+.step-row { display: grid; gap: 3px; }
+.step-h {
+  font-family: var(--font-display); font-size: 13px; font-weight: 700;
+  color: var(--text);
+}
+.step-row p { font-size: 13px; line-height: 1.5; color: var(--text-dim); margin: 0; }
+
+.faq-list { display: grid; gap: 8px; }
+.faq-item {
+  background: var(--surface-2); border: var(--line-thin) solid var(--border);
+  border-radius: var(--r-sm); padding: 10px 12px;
+}
+.faq-item > summary {
+  cursor: pointer; list-style: none;
+  font-family: var(--font-display); font-size: 13px; font-weight: 600; color: var(--text);
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.faq-item > summary::-webkit-details-marker { display: none; }
+.faq-item > summary::after { content: "+"; color: var(--text-dim); font-size: 16px; line-height: 1; }
+.faq-item[open] > summary::after { content: "\2013"; }
+.faq-item[open] > summary { margin-bottom: 7px; }
+.faq-item p { font-size: 13px; line-height: 1.55; color: var(--text-dim); margin: 0; }

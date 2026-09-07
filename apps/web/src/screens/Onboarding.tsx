@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Btn, Bubble, Label, Sticker, Tape } from "@/components/kit";
 import { IntroReel } from "@/components/IntroReel";
+import { Learn } from "@/components/Learn";
 import { Mascot } from "@/components/Mascot";
 import { FAUCET_URL, IS_TESTNET } from "@/lib/env";
 import { GAS_SYMBOL, STAKE_SYMBOL, hasInjectedWallet } from "@/lib/wallet";
@@ -80,6 +81,7 @@ export function Onboarding() {
                 <span className="chooser-cta chooser-cta-sky">Open Housepool →</span>
               </a>
             </div>
+            <Learn />
           </div>
         )}
 

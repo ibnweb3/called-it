@@ -16,6 +16,7 @@ import { DepositCard } from "./components/DepositCard";
 import { WithdrawCard } from "./components/WithdrawCard";
 import { SessionList } from "./components/SessionList";
 import { FaucetCard } from "./components/FaucetCard";
+import { Learn } from "./components/Learn";
 
 const POLL_MS = 8000;
 
@@ -133,6 +134,7 @@ export default function App() {
             </div>
             <SessionList sessions={sessions} assetDecimals={reads?.assetDecimals ?? 6} />
           </div>
+          <Learn />
         </>
       )}
 
