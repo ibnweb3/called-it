@@ -1,0 +1,56 @@
+/* Housepool — same "midnight arcade" palette as Called It's web app
+ * (apps/web/src/styles/tokens.css), copied so the two products read as part
+ * of the same family without vault-web depending on apps/web at all. */
+
+:root {
+  /* ground */
+  --paper: #150320;
+  --paper-2: #1d0629;
+  --paper-glow: #35104a;
+
+  /* raised panels */
+  --surface: #2c1c40;
+  --surface-2: #1e1030;
+
+  /* the pen */
+  --ink: #0b0416;
+  --border: #8b74b8;
+  --edge: #0b0416;
+  --ink-soft: #b6a6d4;
+  --ink-faint: #6f5f8c;
+
+  /* text */
+  --text: #f1ecfa;
+  --text-dim: #a99bc4;
+
+  /* accents */
+  --gold: #ffc53d;
+  --sky: #6fd3f7;
+  --grape: #a888f7;
+
+  /* semantics */
+  --up: #35c77b;
+  --up-deep: #4ee49a;
+  --down: #ff5f57;
+  --down-deep: #ff8079;
+
+  /* construction */
+  --line: 3px;
+  --line-thin: 2px;
+  --r-sm: 10px;
+  --r: 16px;
+  --r-lg: 22px;
+  --r-pill: 999px;
+  --pop-shadow: 5px 5px 0 var(--edge);
+  --pop-shadow-sm: 3px 3px 0 var(--edge);
+
+  /* type */
+  --font-display: "Fredoka", "Baloo 2", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: dark;
+}

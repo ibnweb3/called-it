@@ -8,8 +8,16 @@
 // return over a short lookback, clamped to a tight band. Needs a price feed
 // (bundled on testnet; PRICE_FEED_URL on mainnet). This is where the croupier
 // starts to actually earn its spread instead of just donating liquidity.
+//
+// v1.2 ("curve"): fair value comes from @called-it/curve — a time-aware model
+// that leans on the underlying's move away from the window's own opening price,
+// scaled by how much room is left to move before expiry. Size shrinks and the
+// spread widens as a window empties, instead of quoting the same flat spread
+// from open to close. See packages/curve/src/index.ts for the model itself;
+// this file only blends its output with the book, same as the other two modes.
 
 import type { EcContext } from "@dreamdex-bot-kit/ec-core";
+import { quote as curveQuote, DEFAULT_CURVE_CONFIG, type CurveConfig, type QuoteInputs, type QuoteOutput } from "@called-it/curve";
 import { CFG } from "./config.js";
 
 type Book = { bids: [number, number][]; asks: [number, number][] };
@@ -26,6 +34,12 @@ export class SpotMomentum {
     this.samples.push({ at, price });
     const cutoff = at - this.windowMs * 3;
     while (this.samples.length && this.samples[0]!.at < cutoff) this.samples.shift();
+  }
+
+  /** The most recently recorded price, or null if nothing has been sampled yet. */
+  latest(): number | null {
+    const last = this.samples[this.samples.length - 1];
+    return last ? last.price : null;
   }
 
   /** Fractional return over the lookback window, or null while warming up / stale. */
@@ -48,7 +62,7 @@ const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x
 
 /** Poll the underlying spot into `mom`. Safe no-op when no price feed is set. */
 export async function pollSpot(ctx: EcContext, asset: string, mom: SpotMomentum): Promise<void> {
-  if (CFG.fairMode !== "drift") return;
+  if (CFG.fairMode !== "drift" && CFG.fairMode !== "curve") return;
   try {
     const px = await ctx.exchange.fetchPrice(asset);
     if (px?.price) mom.record(px.price, px.timestamp ?? Date.now());
@@ -75,4 +89,34 @@ export function fairUp(book: Book, mom: SpotMomentum): number {
     return clamp(0.6 * anchor + 0.4 * mid, 0.05, 0.95);
   }
   return anchor;
+}
+
+// "curve" mode's own config, built from CFG once. `baseHalfSpread` deliberately
+// reuses CROUPIER_SPREAD (CFG.halfSpread) rather than introducing a second
+// spread knob — it's the same concept, just the starting point the curve widens
+// from as a window empties.
+export const CURVE_CFG: CurveConfig = {
+  ...DEFAULT_CURVE_CONFIG,
+  volAnnual: CFG.curveVolAnnual,
+  sizeDecayPow: CFG.curveSizeDecayPow,
+  baseHalfSpread: CFG.halfSpread,
+  widenGain: CFG.curveWidenGain,
+  minQuoteSec: CFG.curveMinQuoteSec,
+};
+
+/**
+ * Fair UP probability for "curve" mode: the model's own fair price, pulled
+ * toward the book mid when one exists (30% weight — the model leads, but an
+ * informed book still gets a say). halfSpread/sizeMult pass through unchanged;
+ * they already encode the model's own view of how much to quote and how wide.
+ */
+export function fairQuote(book: Book, inputs: QuoteInputs): QuoteOutput {
+  const model = curveQuote(inputs, CURVE_CFG);
+  const bid = book.bids[0]?.[0];
+  const ask = book.asks[0]?.[0];
+  if (bid !== undefined && ask !== undefined) {
+    const mid = (bid + ask) / 2;
+    return { ...model, fairUp: clamp(0.7 * model.fairUp + 0.3 * mid, 0.05, 0.95) };
+  }
+  return model;
 }

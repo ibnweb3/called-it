@@ -33,13 +33,20 @@ apps/telegram/        (Phase 4) grammY command bot
 - [x] **Phase 0** scaffold — `apps/*` + `packages/*` workspaces wired, installs + typechecks
 - [x] **Phase 0** ground truth — `@called-it/chain` verified live against testnet via the backend indexer (see findings below). Browser-SDK runtime / croupier dry-run still owed.
 - [x] **Phase 1.1** `@called-it/chain` — `currentRounds` / `placeCall` / `positions` / `settledRounds` / `claim`. **Reads verified live** (rounds, books, settlements, results). `placeCall` / `claim` still need a funded burner to exercise.
-- [x] **Phase 1.2** `apps/croupier` — ec-maker fork with fair-value control + daily-loss kill switch (typechecks; **dry-run not yet verified**)
-- [x] **Phase 1.3** `CalledItFloat.sol` + 20 Foundry tests (all pass, 1000-run fuzz clean). **Not deployed, not audited.**
-- [ ] **Phase 1.4** wire Croupier ↔ Float — implement `apps/croupier/src/float.ts` against the deployed vault (`borrow` on start, `settle` on shutdown/pause)
+- [x] **Phase 1.2** `apps/croupier` — ec-maker fork with fair-value control + daily-loss kill switch. **Run live** against the shared testnet venue: posts curve-priced two-sided quotes, cross-backoff on contested markets, gas-optimized.
+- [x] **Phase 1.3** `CalledItFloat.sol` + 20 Foundry tests (all pass, 1000-run fuzz clean). **Deployed to Somnia Shannon (chain 50312): `0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262`** ("Housepool" / HPOOL). Not audited.
+- [x] **Phase 1.4** Croupier ↔ Float wired — `apps/croupier/src/float.ts` borrows the float on start, settles + re-borrows on a timer, auto-recovers a stale session, guards an operator mismatch. Verified live: borrow → curve quote → settle, with real wins/losses and prize cuts on the vault.
+- [x] **Phase 3.2** the time-aware fair-value curve — `packages/curve` (`@called-it/curve`), 14 unit tests, wired into the Croupier as `CROUPIER_FAIR=curve`.
+- [x] **Phase 3.3** the Housepool dashboard — `apps/vault-web` (Vite + React + viem, no SDK). Deposit / withdraw / redeem, live pool stats, "bot trading now" badge, per-session P&L history. Builds clean; verified against the live vault.
 - [x] **Phase 2** `apps/backend` — indexer + REST/WS API + Telegram notifier. **Boots and serves live testnet data** (`/v1/rounds/current` returns real BTC/ETH windows, `/v1/rounds/history` returns graded results). Not deployed.
 - [x] **Phase 3** web — `apps/web`, a Vite + React PWA built to [`apps/web/SPEC.md`](apps/web/SPEC.md) in a **cartoon** style (sticker shapes, ink outlines, one coin with a face). Onboarding, Play, confirm/pending/result, streak + badges, squads, ranks, share cards, wallet drawer. Ships a **demo mode** (local round engine, play money, no backend) as the default so it runs standalone; `NEXT_PUBLIC_MODE=live` points it at the backend + chain. Typechecks and builds. Live **reads** verified against testnet through the backend (login→JWT, rounds, history, price, profile, WS); live **writes** (`placeCall` / `claim`) still need a funded wallet on Somnia.
 - [x] **Phase 3.1** wallet — replaced the browser-burner with a **connect-an-injected-wallet** flow (`apps/web/src/lib/wallet.ts`): EIP-1193 `eth_requestAccounts` + Somnia network add/switch, viem `WalletClient` handed to the markets SDK for `writeContract`-signed calls, `personal_sign` login against the backend, silent reconnect, disconnect. Demo mode gained an optional "connect a wallet" (identity only, still play money). `@called-it/chain`'s `createClient` now takes `walletClient` / `account` too. Typechecks + builds (both `CHAIN_IN_BROWSER` modes); demo flow verified end-to-end in a browser with a mock provider. **Live-mode connect (real wallet + backend) still unexercised.**
-- [ ] **Phase 4** telegram (commands) · **Phase 5** merge + mainnet
+- [ ] **Phase 4** telegram (commands) · **Phase 5** mainnet
+
+> **Merged for submission (2026-09-07):** Called It (the game) and Housepool (the
+> vault that backs it) ship as **one product** — see [`README.md`](README.md).
+> Same repo, same bot, same curve; the game is the demand side, Housepool is the
+> supply side.
 
 ## Run
 
@@ -99,10 +106,10 @@ dry-run soak.
 ## License & provenance
 
 MIT — see [`LICENSE`](LICENSE). Called It's own code (`apps/web`, `apps/backend`,
-`packages/chain`, `contracts/`) is © the Called It contributors; retained
-dreamdex-bot-kit code (`packages/ec-core`, the `ec-maker` fork under
-`apps/croupier`) is © DreamDEX S.A., used under MIT. Third-party components and
-their licenses are listed in [`NOTICE`](NOTICE).
+`apps/vault-web`, `packages/chain`, `packages/curve`, `contracts/`) is © the
+Called It contributors; retained dreamdex-bot-kit code (`packages/ec-core`, the
+`ec-maker` fork under `apps/croupier`) is © DreamDEX S.A., used under MIT.
+Third-party components and their licenses are listed in [`NOTICE`](NOTICE).
 
 ## Not financial advice, not audited
 

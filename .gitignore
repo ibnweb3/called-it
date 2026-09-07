@@ -42,3 +42,4 @@ venv/
 # python build artifacts
 *.egg-info/
 .pytest_cache/
+Videos/

@@ -1,0 +1,21 @@
+{
+  "name": "@called-it/curve",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Time-aware fair-value curve for DreamDEX Event Contract market-making. Pure math — no chain, no SDK, no deps.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.6"
+  }
+}
