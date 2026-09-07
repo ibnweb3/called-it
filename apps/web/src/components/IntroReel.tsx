@@ -24,15 +24,19 @@ const TAGLINE = "One tap. Fifteen minutes. Onchain proof.";
 // swap for e.g. ["Where good", "calls", "come true."] or ["Dreamt it?", "Call it.", "Prove it."]
 const DREAM_PHRASES = ["Dream it.", "Call it.", "Prove it."];
 
+// the payoff for the other side of the bet — Housepool, the community house.
+const HOUSE_PHRASES = ["Or don't tap —", "own the house,", "take the edge."];
+
 const T_BEAT_1 = 1600; // swipe in + hold + swipe out (matches the CSS animation)
 const T_BEAT_2 = 1500; // pop in + hold + drop out
 const T_CHAR = 42; // typewriter — per character
 const T_SPACE = 92; // …slower on spaces / punctuation, for rhythm
 const T_SETTLE = 350; // beat after the last character before the tagline "holds"
 const T_TAG_HOLD = 3000; // how long the finished tagline sits before beat 4 (the payoff line — let it linger)
-const T_DREAM_HOLD = 3200; // how long beat 4 sits before the loop restarts (matches the tagline dwell)
+const T_DREAM_HOLD = 3000; // how long beat 4 sits before beat 5
+const T_HOUSE_HOLD = 3200; // how long beat 5 (the Housepool line) sits before the loop restarts
 
-type Phase = "beat1" | "beat2" | "typing" | "tag" | "dream";
+type Phase = "beat1" | "beat2" | "typing" | "tag" | "dream" | "house";
 
 function prefersReducedMotion() {
   return (
@@ -47,7 +51,7 @@ export function IntroReel() {
   const [phase, setPhase] = useState<Phase>(reduced ? "tag" : "beat1");
   const [typed, setTyped] = useState(reduced ? TAGLINE.length : 0);
 
-  // the beat clock: beat1 → beat2 → typing → tag → dream → (loop) beat1
+  // the beat clock: beat1 → beat2 → typing → tag → dream → house → (loop) beat1
   useEffect(() => {
     if (reduced) return;
     let t: number;
@@ -61,7 +65,9 @@ export function IntroReel() {
     } else if (phase === "tag") {
       t = window.setTimeout(() => setPhase("dream"), T_TAG_HOLD);
     } else if (phase === "dream") {
-      t = window.setTimeout(() => setPhase("beat1"), T_DREAM_HOLD);
+      t = window.setTimeout(() => setPhase("house"), T_DREAM_HOLD);
+    } else if (phase === "house") {
+      t = window.setTimeout(() => setPhase("beat1"), T_HOUSE_HOLD);
     }
     return () => window.clearTimeout(t);
   }, [phase, reduced]);
@@ -83,7 +89,7 @@ export function IntroReel() {
   return (
     <div className="intro-reel">
       <p className="sr-only">
-        {BEAT_1} {BEAT_2} {TAGLINE} {DREAM_PHRASES.join(" ")}
+        {BEAT_1} {BEAT_2} {TAGLINE} {DREAM_PHRASES.join(" ")} {HOUSE_PHRASES.join(" ")}
       </p>
 
       <div className="intro-stage" aria-hidden="true">
@@ -113,6 +119,20 @@ export function IntroReel() {
               >
                 {phrase}
                 {i < DREAM_PHRASES.length - 1 ? " " : ""}
+              </span>
+            ))}
+          </span>
+        )}
+        {phase === "house" && (
+          <span key="house" className="intro-line intro-house">
+            {HOUSE_PHRASES.map((phrase, i) => (
+              <span
+                key={i}
+                className="intro-dream-word"
+                style={{ animationDelay: `${i * 0.24}s` }}
+              >
+                {phrase}
+                {i < HOUSE_PHRASES.length - 1 ? " " : ""}
               </span>
             ))}
           </span>

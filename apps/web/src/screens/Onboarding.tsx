@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Btn, Bubble, Label, Sticker, Tape } from "@/components/kit";
 import { IntroReel } from "@/components/IntroReel";
 import { Mascot } from "@/components/Mascot";
-import { Wordmark } from "@/components/Wordmark";
 import { FAUCET_URL, IS_TESTNET } from "@/lib/env";
 import { GAS_SYMBOL, STAKE_SYMBOL, hasInjectedWallet } from "@/lib/wallet";
 import { shortAddr, usd } from "@/lib/format";
@@ -56,36 +55,30 @@ export function Onboarding() {
   return (
     <div className={`app${step === 0 ? " app-chooser" : ""}`}>
       <div className="screen" style={{ paddingTop: 26, gap: 18 }}>
-        {IS_TESTNET && <Tape>testnet · play money</Tape>}
+        {IS_TESTNET && step !== 0 && <Tape>testnet · play money</Tape>}
 
         {step === 0 && (
-          <div className="stack center" style={{ gap: 16 }}>
+          <div className="stack center" style={{ gap: 20 }}>
             <div className="stack center" style={{ gap: 6 }}>
               <h1 className="sr-only">Called It</h1>
-              <Wordmark size={150} />
               <IntroReel />
+              {IS_TESTNET && <p className="dim tiny">testnet · play money</p>}
             </div>
             <div className="chooser">
-              <Sticker className="chooser-card" tilt="l">
-                <Mascot mood="idle" size={70} />
+              <button type="button" className="chooser-card sticker" onClick={() => setStep(1)}>
+                <Mascot mood="idle" size={84} />
                 <h2>Play</h2>
                 <p>Tap UP or DOWN on the next 15 minutes of BTC. One tap, onchain proof.</p>
-                <Btn tone="gold" block onClick={() => setStep(1)}>
-                  Make your first call →
-                </Btn>
-              </Sticker>
-              <Sticker className="chooser-card" tilt="r">
+                <span className="chooser-cta">Make your first call →</span>
+              </button>
+              <a className="chooser-card sticker" href="/house">
                 <span className="chooser-mark" aria-hidden="true">
                   🏠
                 </span>
                 <h2>Own the house</h2>
-                <p>
-                  Deposit {STAKE_SYMBOL}. A bot makes the market with the pool — you earn its edge.
-                </p>
-                <a className="btn btn-sky btn-block" href="/house">
-                  Open Housepool →
-                </a>
-              </Sticker>
+                <p>Deposit {STAKE_SYMBOL}. A bot makes the market with the pool — you earn its edge.</p>
+                <span className="chooser-cta chooser-cta-sky">Open Housepool →</span>
+              </a>
             </div>
           </div>
         )}
