@@ -2,7 +2,7 @@
   "name": "called-it",
   "version": "0.1.0",
   "private": true,
-  "description": "Called It — a 15-minute tap game on DreamDEX Event Contracts. Fork of dreamdex-bot-kit.",
+  "description": "Called It — a 15-minute prediction game where the house is a vault anyone can own. On DreamDEX Event Contracts (Somnia).",
   "type": "module",
   "workspaces": [
     "packages/*",
@@ -18,12 +18,16 @@
     "backend:dev": "npm run dev -w backend",
     "web:dev": "npm run dev -w web",
     "web:build": "npm run build -w web",
+    "vault-web:dev": "npm run dev -w vault-web",
     "chain:typecheck": "npm run typecheck -w @called-it/chain",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "contracts:build": "cd contracts && forge build",
-    "contracts:test": "cd contracts && forge test"
+    "contracts:test": "cd contracts && forge test",
+    "deploy:vault-web": "npm run build -w vault-web && wrangler pages deploy apps/vault-web/dist --project-name housepool --branch main --commit-dirty=true",
+    "deploy:web": "npm run build -w web && wrangler pages deploy apps/web/dist --project-name called-it --branch main --commit-dirty=true"
   },
   "devDependencies": {
-    "tsx": "^4.19.0"
+    "tsx": "^4.19.0",
+    "wrangler": "^4.129.0"
   }
 }

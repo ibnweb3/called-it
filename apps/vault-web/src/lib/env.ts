@@ -1,12 +1,17 @@
-// Two things this page needs from outside: which network, and which deployed
-// vault to point at. Set in apps/vault-web/.env (git-ignored) or the shell:
+// Which network, and which deployed vault to point at. Both default to the
+// live testnet deployment so the app builds and hosts with zero config; override
+// in apps/vault-web/.env (git-ignored) or the shell for local dev:
 //
 //   VITE_NETWORK=testnet
-//   VITE_VAULT_ADDRESS=0x...   (printed by contracts/script/Deploy.s.sol)
+//   VITE_VAULT_ADDRESS=0x...
+//
+// The vault address is public on-chain data, not a secret — safe to commit.
+
+const DEFAULT_VAULT_ADDRESS = "0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262";
 
 export const NETWORK = (import.meta.env.VITE_NETWORK ?? "testnet") as "testnet" | "mainnet";
 export const IS_TESTNET = NETWORK === "testnet";
 
-export const VAULT_ADDRESS = (import.meta.env.VITE_VAULT_ADDRESS ?? "") as `0x${string}` | "";
+export const VAULT_ADDRESS = (import.meta.env.VITE_VAULT_ADDRESS ?? DEFAULT_VAULT_ADDRESS) as `0x${string}` | "";
 
 export const FAUCET_URL = "https://testnet.somnia.network";
