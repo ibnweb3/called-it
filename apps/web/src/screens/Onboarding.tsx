@@ -74,21 +74,25 @@ export function Onboarding({
             <div className="chooser">
               <button
                 type="button"
-                className="chooser-card sticker"
+                className="chooser-card sticker chooser-left"
                 onClick={() => (accepted ? onEnter() : setStep(1))}
               >
-                <Mascot mood="idle" size={84} />
-                <h2>Play</h2>
-                <p>Tap UP or DOWN on the next 15 minutes of BTC. One tap, onchain proof.</p>
-                <span className="chooser-cta">{accepted ? "Enter the game →" : "Make your first call →"}</span>
-              </button>
-              <a className="chooser-card sticker" href="/house">
-                <span className="chooser-mark" aria-hidden="true">
-                  🏠
+                <span className="chooser-card-fx">
+                  <Mascot mood="idle" size={66} />
+                  <h2>Play</h2>
+                  <p>Tap UP or DOWN on the next 15 minutes of BTC. One tap, onchain proof.</p>
+                  <span className="chooser-cta">{accepted ? "Enter the game →" : "Make your first call →"}</span>
                 </span>
-                <h2>Own the house</h2>
-                <p>Deposit {STAKE_SYMBOL}. A bot works the pool; you earn the house's edge.</p>
-                <span className="chooser-cta chooser-cta-sky">Open Housepool →</span>
+              </button>
+              <a className="chooser-card sticker chooser-right" href="/house">
+                <span className="chooser-card-fx">
+                  <span className="chooser-mark" aria-hidden="true">
+                    🏠
+                  </span>
+                  <h2>Own the house</h2>
+                  <p>Deposit {STAKE_SYMBOL}. A bot works the pool; you earn the house's edge.</p>
+                  <span className="chooser-cta chooser-cta-sky">Open Housepool →</span>
+                </span>
               </a>
             </div>
             <Learn />
