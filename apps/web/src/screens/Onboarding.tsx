@@ -54,23 +54,40 @@ export function Onboarding() {
   const noWallet = !hasInjectedWallet();
 
   return (
-    <div className="app">
+    <div className={`app${step === 0 ? " app-chooser" : ""}`}>
       <div className="screen" style={{ paddingTop: 26, gap: 18 }}>
         {IS_TESTNET && <Tape>testnet · play money</Tape>}
 
         {step === 0 && (
-          <Sticker className="stack center" style={{ justifyItems: "center", gap: 10, paddingBlock: 26 }}>
-            <Mascot mood="idle" size={92} />
-            <h1 className="sr-only">Called It</h1>
-            <Wordmark size={190} />
-            <IntroReel />
-            <Btn tone="gold" block onClick={() => setStep(1)}>
-              Make your first call →
-            </Btn>
-            <a className="dim" href="/house" style={{ fontSize: 13 }}>
-              …or don't tap — <strong>own the house</strong> instead →
-            </a>
-          </Sticker>
+          <div className="stack center" style={{ gap: 16 }}>
+            <div className="stack center" style={{ gap: 6 }}>
+              <h1 className="sr-only">Called It</h1>
+              <Wordmark size={150} />
+              <IntroReel />
+            </div>
+            <div className="chooser">
+              <Sticker className="chooser-card" tilt="l">
+                <Mascot mood="idle" size={70} />
+                <h2>Play</h2>
+                <p>Tap UP or DOWN on the next 15 minutes of BTC. One tap, onchain proof.</p>
+                <Btn tone="gold" block onClick={() => setStep(1)}>
+                  Make your first call →
+                </Btn>
+              </Sticker>
+              <Sticker className="chooser-card" tilt="r">
+                <span className="chooser-mark" aria-hidden="true">
+                  🏠
+                </span>
+                <h2>Own the house</h2>
+                <p>
+                  Deposit {STAKE_SYMBOL}. A bot makes the market with the pool — you earn its edge.
+                </p>
+                <a className="btn btn-sky btn-block" href="/house">
+                  Open Housepool →
+                </a>
+              </Sticker>
+            </div>
+          </div>
         )}
 
         {step === 1 && (

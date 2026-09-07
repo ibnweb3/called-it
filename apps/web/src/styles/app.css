@@ -383,6 +383,34 @@ button.wordmark:focus-visible {
 .sticker.tilt-r { transform: rotate(1.1deg); }
 .sticker.flat { box-shadow: var(--pop-shadow-sm); border-radius: var(--r); }
 
+/* --------------------------------------------------- step-0 "pick a side" --
+ * Two equal cards — Play / Own the house — side by side once there's room,
+ * stacked on a phone. The wider container only kicks in at the same breakpoint.
+ */
+.chooser { display: grid; gap: 12px; width: 100%; }
+.chooser-card {
+  display: grid; justify-items: center; align-content: start; text-align: center;
+  gap: 9px; padding: 20px 16px;
+}
+.chooser-card h2 { font-size: 21px; }
+.chooser-card p { font-size: 13px; color: var(--text-dim); line-height: 1.45; margin: 0; }
+.chooser-card .btn, .chooser-card a.btn {
+  margin-top: 4px; text-decoration: none;
+  width: 100%; font-size: 14px; padding-inline: 12px; white-space: nowrap;
+}
+.chooser-mark {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: var(--gold); border: var(--line) solid var(--ink);
+  display: grid; place-items: center; font-size: 32px;
+  box-shadow: var(--pop-shadow-sm);
+}
+@media (min-width: 620px) {
+  .app-chooser { max-width: 740px; }
+  .chooser { grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .chooser-card { align-content: space-between; }
+  .chooser-card p { min-height: 4.2em; }
+}
+
 /* -------------------------------------------------------------- buttons -- */
 
 .btn {
