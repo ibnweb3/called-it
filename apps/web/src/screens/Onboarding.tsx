@@ -13,11 +13,17 @@ import { useApp } from "@/lib/store";
  * play from. The risk gate is not a dark pattern in reverse — it is the one
  * screen that has to be plain (SPEC §5.1).
  */
-export function Onboarding() {
-  // A returning player who only needs to reconnect a wallet skips the intro and
-  // the risk gate they already passed.
-  const alreadyAccepted = useApp((s) => s.accepted);
-  const [step, setStep] = useState(alreadyAccepted ? 2 : 0);
+export function Onboarding({
+  initialStep = 0,
+  onEnter,
+}: {
+  /** 0 = the Play / Own-the-house chooser (the front door); 2 = wallet reconnect. */
+  initialStep?: number;
+  /** Called when the player has chosen to enter the game. */
+  onEnter: () => void;
+}) {
+  const accepted = useApp((s) => s.accepted);
+  const [step, setStep] = useState(initialStep);
   const [agreed, setAgreed] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const mode = useApp((s) => s.mode);
@@ -66,11 +72,15 @@ export function Onboarding() {
               {IS_TESTNET && <p className="dim tiny">testnet · play money</p>}
             </div>
             <div className="chooser">
-              <button type="button" className="chooser-card sticker" onClick={() => setStep(1)}>
+              <button
+                type="button"
+                className="chooser-card sticker"
+                onClick={() => (accepted ? onEnter() : setStep(1))}
+              >
                 <Mascot mood="idle" size={84} />
                 <h2>Play</h2>
                 <p>Tap UP or DOWN on the next 15 minutes of BTC. One tap, onchain proof.</p>
-                <span className="chooser-cta">Make your first call →</span>
+                <span className="chooser-cta">{accepted ? "Enter the game →" : "Make your first call →"}</span>
               </button>
               <a className="chooser-card sticker" href="/house">
                 <span className="chooser-mark" aria-hidden="true">
@@ -224,7 +234,15 @@ export function Onboarding() {
               </>
             )}
 
-            <Btn tone="gold" block disabled={!funded} onClick={accept}>
+            <Btn
+              tone="gold"
+              block
+              disabled={!funded}
+              onClick={() => {
+                accept();
+                onEnter();
+              }}
+            >
               {funded
                 ? "Done — let's play"
                 : mode === "demo"

@@ -26,7 +26,6 @@ const TABS: Array<{ id: Tab; icon: string; label: string }> = [
 export default function App() {
   const booted = useApp((s) => s.booted);
   const bootError = useApp((s) => s.bootError);
-  const accepted = useApp((s) => s.accepted);
   const mode = useApp((s) => s.mode);
   const walletConnected = useApp((s) => s.walletConnected);
   const tab = useApp((s) => s.tab);
@@ -37,6 +36,9 @@ export default function App() {
   const runLive = useApp((s) => s.slip?.status === "live");
   const boot = useApp((s) => s.boot);
   const [wallet, setWallet] = useState(false);
+  // The chooser (Play / Own the house) is the front door on every load, even
+  // for a returning player — they leave it only by picking a side.
+  const [entered, setEntered] = useState(false);
 
   useEffect(() => {
     void boot();
@@ -60,8 +62,11 @@ export default function App() {
   }
 
   // Live mode has no "you" without a wallet — send returning players who
-  // revoked access (or cleared it) back through Onboarding to reconnect.
-  if (!accepted || (mode === "live" && !walletConnected)) return <Onboarding />;
+  // revoked access (or cleared it) straight to the reconnect step.
+  const needsReconnect = mode === "live" && !walletConnected;
+  if (!entered || needsReconnect) {
+    return <Onboarding initialStep={needsReconnect ? 2 : 0} onEnter={() => setEntered(true)} />;
+  }
 
   const purse = unclaimed(profile);
 
