@@ -23,8 +23,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "contracts:build": "cd contracts && forge build",
     "contracts:test": "cd contracts && forge test",
-    "deploy:vault-web": "npm run build -w vault-web && wrangler pages deploy apps/vault-web/dist --project-name housepool --branch main --commit-dirty=true",
-    "deploy:web": "npm run build -w web && wrangler pages deploy apps/web/dist --project-name called-it --branch main --commit-dirty=true"
+    "site:build": "npm run build -w web && npm run build -w vault-web && node deploy/assemble.mjs",
+    "deploy": "npm run site:build && wrangler pages deploy deploy/dist --project-name calledit-somnia --branch main --commit-dirty=true"
   },
   "devDependencies": {
     "tsx": "^4.19.0",

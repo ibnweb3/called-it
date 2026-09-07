@@ -41,11 +41,11 @@ sides of the same trade:
 
 | | |
 |---|---|
+| **Play** | **https://calledit-somnia.pages.dev** |
+| **Own the house** | **https://calledit-somnia.pages.dev/house** |
 | Network | Somnia Shannon testnet — chain `50312` |
 | Housepool vault (`CalledItFloat` · "HPOOL") | [`0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262`](https://shannon-explorer.somnia.network/address/0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262) |
 | Deposit token (tUSDC) | `0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E` — public `faucet(uint256)`, mint your own |
-| Housepool dashboard | _Cloudflare Pages — link in the BUIDL submission_ |
-| Game PWA | _Cloudflare Pages — link in the BUIDL submission_ |
 
 The vault contract is deployed and every operation — deposit, borrow, settle,
 prize cut, redeem — is verified on-chain. The Croupier has run live against the

@@ -76,10 +76,15 @@ export default function App() {
             </span>
           )}
         </div>
-        <button className="pill pill-gold wallet-pill" onClick={() => setWallet(true)}>
-          <span aria-hidden="true">💰</span>
-          <span className="num">{usd(balances?.usd ?? null, 2)}</span>
-        </button>
+        <div className="topbar-right">
+          <a className="pill" href="/house" title="Deposit and earn the house's edge">
+            <span aria-hidden="true">🏦</span> House
+          </a>
+          <button className="pill pill-gold wallet-pill" onClick={() => setWallet(true)}>
+            <span aria-hidden="true">💰</span>
+            <span className="num">{usd(balances?.usd ?? null, 2)}</span>
+          </button>
+        </div>
       </header>
 
       {/* Play · Streak · Squad · Ranks — the whole game lives behind these four */}

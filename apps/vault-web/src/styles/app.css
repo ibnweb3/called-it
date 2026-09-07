@@ -37,9 +37,12 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
   width: 34px; height: 34px; border-radius: var(--r-pill);
   background: var(--gold); border: var(--line-thin) solid var(--ink);
   display: grid; place-items: center; font-size: 16px;
+  text-decoration: none;
 }
 .brand h1 { font-size: 20px; }
 .tag { font-size: 12px; color: var(--text-dim); }
+.back-link { color: var(--sky); text-decoration: none; font-weight: 600; }
+.back-link:hover { text-decoration: underline; }
 
 .wallet-pill {
   display: inline-flex; align-items: center; gap: 6px;

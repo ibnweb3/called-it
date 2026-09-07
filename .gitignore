@@ -43,3 +43,7 @@ venv/
 *.egg-info/
 .pytest_cache/
 Videos/
+
+# wrangler local state / tmp
+.wrangler/
+deploy/dist/

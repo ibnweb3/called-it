@@ -67,6 +67,9 @@ export function Onboarding() {
             <Btn tone="gold" block onClick={() => setStep(1)}>
               Make your first call →
             </Btn>
+            <a className="dim" href="/house" style={{ fontSize: 13 }}>
+              …or don't tap — <strong>own the house</strong> instead →
+            </a>
           </Sticker>
         )}
 

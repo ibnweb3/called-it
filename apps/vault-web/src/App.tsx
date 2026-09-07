@@ -81,12 +81,15 @@ export default function App() {
     <div className="shell">
       <header className="topbar">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
+          <a href="/" className="brand-mark" aria-label="Back to the game" title="Play Called It">
             🏠
-          </span>
+          </a>
           <div>
             <h1>Housepool</h1>
-            <div className="tag">{IS_TESTNET ? "testnet · play money" : ""}</div>
+            <div className="tag">
+              <a href="/" className="back-link">← Called It</a>
+              {IS_TESTNET ? " · testnet · play money" : ""}
+            </div>
           </div>
         </div>
         {conn ? (

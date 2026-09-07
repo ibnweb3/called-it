@@ -72,6 +72,9 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
 
 .brand { display: flex; align-items: center; gap: 8px; }
 
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.topbar-right a.pill { text-decoration: none; min-height: 36px; display: inline-flex; align-items: center; gap: 5px; }
+
 .wallet-pill {
   min-height: 36px;
   padding: 6px 13px;
