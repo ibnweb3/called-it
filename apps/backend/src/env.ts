@@ -18,6 +18,12 @@ function num(key: string, fallback: number): number {
   return n;
 }
 
+function bool(key: string, fallback: boolean): boolean {
+  const v = process.env[key]?.trim().toLowerCase();
+  if (!v) return fallback;
+  return v === "1" || v === "true" || v === "yes";
+}
+
 const network = str("NETWORK", "testnet").toLowerCase();
 
 export const env = {
@@ -31,4 +37,13 @@ export const env = {
   priceFeedUrl: process.env.PRICE_FEED_URL?.trim() || undefined,
   telegramBotToken: process.env.TELEGRAM_BOT_TOKEN?.trim() || undefined,
   webAppUrl: process.env.WEB_APP_URL?.trim() || undefined,
+  /**
+   * Social-only mode: serve auth + squads + leaderboard for the demo-mode web
+   * app, and skip everything that needs a live chain — the indexer, the round /
+   * price / live-WS routes. This is how the hosted backend backs cross-device
+   * squads without needing reliable RPC access or a running croupier. Implies
+   * the demo-call endpoint (play-money calls recorded without an on-chain
+   * position check).
+   */
+  socialOnly: bool("SOCIAL_ONLY", false),
 } as const;

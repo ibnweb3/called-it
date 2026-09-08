@@ -32,6 +32,8 @@ export type CallStage =
   | { kind: "error"; message: string; hint?: string };
 
 const PREFS = "calledit.prefs.v1";
+/** A squad invite opened before the player entered the game — joined on entry. */
+export const PENDING_ROOM = "calledit.pendingRoom";
 
 interface Prefs {
   accepted: boolean;
@@ -97,6 +99,8 @@ interface AppState extends Prefs {
   setInterval(sec: number): void;
   setChip(chip: Chip): void;
   setRoom(room: { id: string; name: string } | null): void;
+  /** Consume a pending squad invite (stashed from /r/<id>) — join it, land on it. */
+  joinPendingRoom(): Promise<void>;
   markInstallNudged(): void;
 
   refreshRounds(): Promise<void>;
@@ -252,6 +256,31 @@ export const useApp = create<AppState>((set, get) => ({
   setRoom(room) {
     set({ roomId: room?.id ?? null, roomName: room?.name ?? null });
     persist(get());
+  },
+
+  async joinPendingRoom() {
+    let pending: { id: string; name?: string } | null = null;
+    try {
+      const raw = sessionStorage.getItem(PENDING_ROOM);
+      if (raw) pending = JSON.parse(raw) as { id: string; name?: string };
+    } catch {
+      /* no/garbled sessionStorage — nothing pending */
+    }
+    if (!pending?.id) return;
+    try {
+      const room = await get().gateway.joinRoom(pending.id, pending.name);
+      get().setRoom({ id: room.id, name: room.name });
+      set({ tab: "squad" });
+      get().toast(`You're in ${room.name}`, "good");
+    } catch (err) {
+      get().toast((err as Error).message || "That invite link has gone quiet", "bad");
+    } finally {
+      try {
+        sessionStorage.removeItem(PENDING_ROOM);
+      } catch {
+        /* ignore */
+      }
+    }
   },
 
   markInstallNudged() {

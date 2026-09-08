@@ -12,8 +12,9 @@ import { Slip } from "./screens/Slip";
 import { Squad } from "./screens/Squad";
 import { Streak } from "./screens/Streak";
 import { IS_TESTNET, MODE, NETWORK } from "./lib/env";
+import { hasInjectedWallet } from "./lib/wallet";
 import { usd } from "./lib/format";
-import { unclaimed, useApp, type Tab } from "./lib/store";
+import { PENDING_ROOM, unclaimed, useApp, type Tab } from "./lib/store";
 
 const TABS: Array<{ id: Tab; icon: string; label: string }> = [
   { id: "play", icon: "🎯", label: "Play" },
@@ -27,6 +28,7 @@ export default function App() {
   const booted = useApp((s) => s.booted);
   const bootError = useApp((s) => s.bootError);
   const mode = useApp((s) => s.mode);
+  const accepted = useApp((s) => s.accepted);
   const walletConnected = useApp((s) => s.walletConnected);
   const tab = useApp((s) => s.tab);
   const setTab = useApp((s) => s.setTab);
@@ -35,6 +37,7 @@ export default function App() {
   const balances = useApp((s) => s.balances);
   const runLive = useApp((s) => s.slip?.status === "live");
   const boot = useApp((s) => s.boot);
+  const joinPendingRoom = useApp((s) => s.joinPendingRoom);
   const [wallet, setWallet] = useState(false);
   // The chooser (Play / Own the house) is the front door on every load, even
   // for a returning player — they leave it only by picking a side.
@@ -61,11 +64,20 @@ export default function App() {
     );
   }
 
-  // Live mode has no "you" without a wallet — send returning players who
-  // revoked access (or cleared it) straight to the reconnect step.
-  const needsReconnect = mode === "live" && !walletConnected;
-  if (!entered || needsReconnect) {
-    return <Onboarding initialStep={needsReconnect ? 2 : 0} onEnter={() => setEntered(true)} />;
+  // A connected wallet is required to play — in demo too: it's your identity for
+  // the leaderboard and your squads. The one exception is a visitor with no
+  // injected wallet at all, so a judge on plain mobile Safari isn't dead-ended
+  // (Onboarding's step 2 gives them a way through); live mode still needs one.
+  const needsWallet = !walletConnected && (mode === "live" || hasInjectedWallet());
+  if (!entered || needsWallet) {
+    const startAt = needsWallet && accepted ? 2 : 0;
+    // onEnter fires from a real click, so any squad-invite join that needs a
+    // wallet signature has fresh user activation to prompt against.
+    const enter = () => {
+      setEntered(true);
+      void joinPendingRoom();
+    };
+    return <Onboarding initialStep={startAt} onEnter={enter} />;
   }
 
   const purse = unclaimed(profile);
@@ -184,29 +196,25 @@ function Toasts() {
   );
 }
 
-/** Opening /r/<id> drops you into that squad, then tidies the URL. */
+/**
+ * Opening /r/<id> stashes the squad id and tidies the URL. The actual join runs
+ * on entry (App's `onEnter` → `joinPendingRoom`) so it happens after the wallet
+ * is connected and from a real click — a squads backend needs both to sign in.
+ */
 function useInviteLink(): void {
-  const gateway = useApp((s) => s.gateway);
-  const setRoom = useApp((s) => s.setRoom);
-  const setTab = useApp((s) => s.setTab);
-  const toast = useApp((s) => s.toast);
-  const booted = useApp((s) => s.booted);
-
   useEffect(() => {
-    if (!booted) return;
     const match = /^\/r\/([A-Za-z0-9_-]{3,32})$/.exec(window.location.pathname);
     if (!match) return;
-    const id = match[1];
+    // the squad name rides in the hash (never sent to a server) so a link
+    // opened on a fresh device shows the real name, not "Squad <id>"
+    const name = decodeURIComponent(window.location.hash.replace(/^#/, "")).slice(0, 32) || undefined;
+    try {
+      sessionStorage.setItem(PENDING_ROOM, JSON.stringify({ id: match[1], name }));
+    } catch {
+      /* private mode — the invite just won't survive the redirect */
+    }
     window.history.replaceState({}, "", "/");
-    gateway
-      .joinRoom(id)
-      .then((room) => {
-        setRoom({ id: room.id, name: room.name });
-        setTab("squad");
-        toast(`You're in ${room.name}`, "good");
-      })
-      .catch(() => toast("That invite link has gone quiet", "bad"));
-  }, [booted, gateway, setRoom, setTab, toast]);
+  }, []);
 }
 
 interface InstallEvent extends Event {

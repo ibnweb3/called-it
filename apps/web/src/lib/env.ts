@@ -12,6 +12,15 @@ export const NETWORK = pick("NETWORK", "testnet") as "testnet" | "mainnet";
 export const FAUCET_URL = pick("FAUCET_URL", "https://testnet.somnia.network/");
 
 /**
+ * Squads backend for demo mode. When set, the demo app auths the connected
+ * wallet against this URL and routes squads + the global leaderboard through it,
+ * so an invite link works across devices and everyone in a room shares one
+ * board. Unset → squads stay local to the browser (single-device). Ignored in
+ * live mode, which talks to API_URL for everything.
+ */
+export const SQUADS_URL = pick("SQUADS_URL", "").replace(/\/$/, "");
+
+/**
  * demo — a local round engine deals and settles rounds; no backend, no chain,
  *        no funding. The app is fully playable on its own. Connecting a wallet
  *        is optional here — it just sets your on-leaderboard identity.

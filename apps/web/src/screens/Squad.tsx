@@ -66,7 +66,9 @@ export function Squad() {
     }
   }
 
-  const invite = roomId ? `${window.location.origin}/r/${roomId}` : "";
+  // the name rides in the hash so a link opened cold shows "🏠 Rockets", not "Squad k7m2q9"
+  const invite =
+    roomId && room ? `${window.location.origin}/r/${roomId}#${encodeURIComponent(room.name)}` : "";
   const shown = room ? topAndYou(room.leaderboard, address, TOP_N) : [];
 
   return (

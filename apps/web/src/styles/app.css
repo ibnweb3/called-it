@@ -9,21 +9,58 @@
  * everything that can overflow (a long list, a tall sheet) scrolls inside its
  * own box instead. There is one page; nothing sits below the fold. */
 html, body { height: 100%; overflow: hidden; }
+html { background: var(--paper); }
 #root { height: 100%; }
 
 body {
   font-family: var(--font-body);
   font-weight: 700;
   color: var(--text);
-  background: var(--paper);
-  background-image: radial-gradient(
-    120% 85% at 50% 0,
-    var(--paper-glow) 0,
-    var(--paper-2) 45%,
-    var(--paper) 100%
-  );
+  /* the moving <Backdrop/> (position:fixed, z-index:-1) is the ground now —
+   * body stays transparent so it shows through every gap the panels leave */
+  background: transparent;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+}
+
+/* ---------------------------------------------------------- moving backdrop --
+ * A looping metaballs video behind the whole app (components/Backdrop.tsx). It
+ * is bent toward the midnight-arcade palette and buried under a deep-purple
+ * wash + vignette so every surface above stays legible; the content panels
+ * (.game-box, .sticker, .sheet, .navbar) are all opaque and unaffected, so the
+ * video really only reads in the margins and the open space on the front door.
+ */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: var(--paper); /* fallback until the video paints / if it fails */
+  pointer-events: none;
+}
+.backdrop-video {
+  position: absolute;
+  inset: -2%;
+  width: 104%;
+  height: 104%;
+  object-fit: cover;
+  filter: saturate(0.85) brightness(0.62) contrast(1.05);
+}
+.backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      130% 100% at 50% 0%,
+      rgba(53, 16, 74, 0.24) 0%,
+      rgba(21, 3, 32, 0.7) 52%,
+      rgba(11, 4, 22, 0.9) 100%
+    ),
+    linear-gradient(180deg, rgba(43, 12, 66, 0.44) 0%, rgba(21, 3, 32, 0.64) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-video { display: none; } /* the wash alone stays */
 }
 
 button, input, select { font: inherit; color: inherit; }
@@ -51,13 +88,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--paper);
-  background-image: radial-gradient(
-    120% 85% at 50% 0,
-    var(--paper-glow) 0,
-    var(--paper-2) 45%,
-    var(--paper) 100%
-  );
+  /* transparent — the fixed <Backdrop/> behind it is the ground */
+  background: transparent;
   overflow: hidden;
 }
 
@@ -1157,6 +1189,16 @@ button.wordmark:focus-visible {
   font-size: 23px;
   line-height: 1.15;
   color: var(--text);
+}
+
+/* text that floats directly on the moving backdrop (not on a panel) gets a
+ * soft dark halo so it stays readable over the brighter frames of the video */
+.intro-reel .intro-line,
+.hero .intro-line,
+.app > .screen .dim,
+.stack.center > .stack.center .dim.tiny,
+.footer-bar .tiny {
+  text-shadow: 0 1px 10px rgba(11, 4, 22, 0.75), 0 0 2px rgba(11, 4, 22, 0.6);
 }
 
 .intro-beat1 { animation: intro-beat1 1.6s var(--ease-out) both; }

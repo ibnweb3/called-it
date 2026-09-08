@@ -8,6 +8,7 @@ import { registerRoundRoutes } from "./routes/rounds.js";
 import { registerPriceRoutes } from "./routes/price.js";
 import { registerPlayerRoutes } from "./routes/players.js";
 import { registerCallRoutes } from "./routes/calls.js";
+import { registerDemoCallRoutes } from "./routes/demo.js";
 import { registerRoomRoutes } from "./routes/rooms.js";
 import { registerLiveRoute } from "./routes/live.js";
 import { config } from "./chain.js";
@@ -26,15 +27,21 @@ export async function buildServer(): Promise<FastifyInstance> {
     network: env.network,
     chainId: config.chainId,
     venueId: config.venueId,
+    mode: env.socialOnly ? "social-only" : "full",
   }));
 
   registerAuthRoutes(app);
-  registerRoundRoutes(app);
-  registerPriceRoutes(app);
-  registerPlayerRoutes(app);
-  registerCallRoutes(app);
+  registerPlayerRoutes(app); // /v1/players/:address + /v1/leaderboard (chain reads degrade to [])
   registerRoomRoutes(app);
-  registerLiveRoute(app);
+
+  if (env.socialOnly) {
+    registerDemoCallRoutes(app); // play-money call records — feeds squad boards + streaks
+  } else {
+    registerRoundRoutes(app);
+    registerPriceRoutes(app);
+    registerCallRoutes(app); // on-chain-verified call records (live mode)
+    registerLiveRoute(app);
+  }
 
   app.setErrorHandler((err: Error & { statusCode?: number }, _req, reply) => {
     const code = err.statusCode ?? 500;

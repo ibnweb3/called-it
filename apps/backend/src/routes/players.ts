@@ -15,6 +15,7 @@ import {
 import { badgesFor, streakMultiplier } from "../lib/badges.js";
 import { memo } from "../lib/cache.js";
 import { requireAuth } from "../auth.js";
+import { env } from "../env.js";
 
 export function registerPlayerRoutes(app: FastifyInstance): void {
   // Public profile: streak, badges, recent calls, and live positions from chain.
@@ -26,9 +27,10 @@ export function registerPlayerRoutes(app: FastifyInstance): void {
     const streak = getStreak(address);
     const player = getPlayer(address)!;
 
-    const livePositions = await memo(`pos:${address}`, 12_000, () =>
-      positions(chain, getAddress(address)).catch(() => []),
-    );
+    // no chain in social-only mode — the demo web app owns positions locally
+    const livePositions = env.socialOnly
+      ? []
+      : await memo(`pos:${address}`, 12_000, () => positions(chain, getAddress(address)).catch(() => []));
 
     return {
       address: getAddress(address),

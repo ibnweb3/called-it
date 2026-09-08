@@ -1,17 +1,34 @@
 # Called It
 
-**A 15-minute prediction game where the house is a vault anyone can own.**
+**A 15-minute Bitcoin guessing game where anyone can own the house.**
 
-Tap **UP** or **DOWN** on the next 15 minutes of BTC or ETH. Wait out the window.
-Get paid when you're right.
+Every 15 minutes, one question: will Bitcoin's price be higher or lower than it is
+right now? Tap **UP** or **DOWN**, put down a chip, wait out the window. Guess
+right and you get your chip back plus a bit more. Guess wrong and it's gone —
+that's the whole loss, never more.
 
-Every bet you make is filled by **Housepool** — a community liquidity vault.
-Deposit a stablecoin, and a bot (**the Croupier**) uses the pooled money to quote
-both sides of every rolling window from the first second. Whatever the house
-makes on the spread — or loses — moves your share price. Withdraw anytime.
+Every bet needs someone on the other side — to pay the winners and keep the
+losers' chips. That's *the house*. **Housepool** is a shared vault that lets
+**anyone** be it: deposit a stablecoin, and a bot (**the Croupier**) uses the
+pooled money to quote both sides of every window from the first second. What the
+house makes on the edge — or loses — moves your share price. Withdraw anytime.
 
 Built on [DreamDEX Event Contracts](https://dreamdex.somnia.network) (Somnia
 Shannon testnet, chain `50312`).
+
+---
+
+## Why this exists
+
+A prediction market is dead without a house. And being the house on DreamDEX
+means running a trading bot around the clock on your own wallet, re-pricing every
+market every few seconds — risky, thankless, and so almost nobody does it. Fresh
+15-minute windows open with an empty book: you tap UP and no one's there.
+
+Housepool turns the house into something you **join with a deposit** instead of a
+company you have to *be*. Losers' stakes flow into the vault, winners are paid
+from it, the house's small edge makes the vault grow over time, and every
+depositor owns a share of it — redeemable whenever.
 
 ---
 
@@ -26,14 +43,14 @@ Shannon testnet, chain `50312`).
                                                                  → share price moves
 ```
 
-A player tapping **UP** is buying a YES contract — and the resting quote they hit
-is the Croupier's, funded by Housepool. The two sides of Called It are the two
-sides of the same trade:
+A player tapping **UP** and a depositor earning the edge are the two sides of the
+exact same trade — the resting quote the player hits is the Croupier's, funded by
+Housepool:
 
 | You want to… | You are… | You use |
 |---|---|---|
-| **Play** — call the next 15 min | a bettor | the game PWA (`apps/web`) |
-| **Own the house** — earn the spread | a liquidity provider | the Housepool dashboard (`apps/vault-web`) |
+| **Play** — call the next 15 min | a player | the game PWA (`apps/web`) |
+| **Own the house** — earn the edge | the house | the Housepool dashboard (`apps/vault-web`) |
 
 ---
 
@@ -55,23 +72,27 @@ cut) shows up on the dashboard.
 
 ---
 
-## The core idea: a time-aware fair-value curve
+## The core idea: a curve that watches the clock
 
-A BTC up/down contract is a digital option, and a digital option's risk explodes
-as expiry approaches — the same $50 move that's noise with ten minutes left can
-fully decide the outcome with ten seconds left. A flat 50/50 quote either donates
-money late in the window or is too timid early in it.
+The Croupier never offers a flat 50/50. A 15-minute BTC bet is a **digital
+option**, and its risk explodes as the clock runs down — the same $50 move that's
+noise with ten minutes left can decide the whole outcome with ten seconds left.
 
-`packages/curve` is the fix (14 unit tests, no chain calls):
+- **Early in the window** — Bitcoin could still go anywhere; a real move barely
+  nudges the fair price off 0.50.
+- **Final seconds** — if Bitcoin is already up, it's almost certainly *finishing*
+  up. A bot still quoting 50/50 here gets run over. The curve shifts its price to
+  match, shrinks its size, and stops quoting entirely inside a hard cutoff.
 
-1. **Fair probability** — how far has the price moved from the window's opening
-   price, relative to how far it could still plausibly move before expiry? That
-   ratio through a normal CDF is the fair probability of UP. Early in a window a
-   real move barely nudges the fair price off 0.50; late in a window the same
-   move swings it hard toward 0 or 1, because the outcome is nearly decided.
+That timing sense is **what stops sharp players from draining the vault**.
+`packages/curve` — 14 unit tests, pure math, no chain calls:
+
+1. **Fair probability** — how far the price has moved from the window's opening
+   price, versus how far it could still plausibly move before expiry, run through
+   a normal CDF.
 2. **Size + spread decay** — quote size shrinks and the spread widens on a curve
-   as the window empties, and quoting stops entirely inside a hard cutoff near
-   expiry — so the house quotes *least* exactly where a flat quoter gets run over.
+   as the window empties; quoting stops inside a hard cutoff near expiry — so the
+   house quotes *least* exactly where a flat quoter gets run over.
 
 The Croupier runs this as its `CROUPIER_FAIR=curve` mode, blending the model with
 the live book (70/30) when a book exists.
@@ -81,19 +102,20 @@ the live book (70/30) when a book exists.
 ## How Housepool works (the vault)
 
 `contracts/src/CalledItFloat.sol` — an ERC-4626 vault, one trading session at a
-time.
+time. Every rule that follows is on-chain — it's built so it **can't run away
+with your money**:
 
 - **`totalAssets = idle tUSDC + borrowed`** (principal out with the Croupier).
-- **Deposit / withdraw** — anyone; withdrawals are *never* paused and always come
-  from idle, so a holder can always exit against the un-lent half.
+- **Deposit / withdraw** — anyone; **withdrawals are never frozen** and always
+  come from idle, so you can always exit against the un-lent half.
 - **`borrow(amount)`** — only the `operator` (the bot key), capped at both an
-  absolute ceiling and a fraction of TVL (50%). Opens a session.
+  absolute ceiling *and* half the vault. Opens a session. **The operator can
+  never move funds to itself.**
 - **`settle()`** — sweeps the Croupier wallet back into the vault, realizes P&L,
   pays a cut of any profit (10%, capped at 20%) to a prize pool.
-- **`forceClose()`** — anyone, after a deadline, if the bot goes dark. The float
-  can always be recovered.
-- **Config changes** sit behind a 24-hour timelock. The operator can never move
-  funds to itself.
+- **`forceClose()`** — **anyone can hit this emergency button** after a deadline
+  if the bot goes dark. The float is always recoverable.
+- **Config changes** sit behind a 24-hour timelock.
 
 **Money is at risk.** A losing session lowers the share price. This is testnet
 play money; the mechanics are real.

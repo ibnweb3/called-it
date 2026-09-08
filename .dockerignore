@@ -1,0 +1,28 @@
+# Keep the Docker build context small — apps/backend/Dockerfile only needs the
+# root manifests, packages/chain, and apps/backend.
+node_modules
+**/node_modules
+.git
+**/dist
+deploy/dist
+.wrangler
+.claude
+.cursor
+
+# forge / foundry
+contracts/lib
+contracts/out
+contracts/cache
+contracts/broadcast
+
+# local db caches (the container makes its own)
+**/*.db
+**/*.db-shm
+**/*.db-wal
+
+# media / scratch that never belongs in a server image
+BG
+Videos
+**/*.mp4
+**/*.MP3
+apps/*/public/bg.mp4

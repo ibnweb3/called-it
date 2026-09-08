@@ -44,6 +44,9 @@ venv/
 .pytest_cache/
 Videos/
 
+# raw source drops — the used copies live in apps/*/public/
+BG/
+
 # wrangler local state / tmp
 .wrangler/
 deploy/dist/

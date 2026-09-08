@@ -53,7 +53,9 @@ export interface Gateway {
   setHandle(handle: string): Promise<string>;
 
   createRoom(name: string): Promise<Room>;
-  joinRoom(id: string): Promise<RoomDetail>;
+  /** `name` is a display hint from an invite link — used only for a local
+   *  (backend-less) room so it isn't shown as "Squad <id>". */
+  joinRoom(id: string, name?: string): Promise<RoomDetail>;
   room(id: string): Promise<RoomDetail>;
 
   placeCall(args: PlaceArgs): Promise<CallReceipt>;

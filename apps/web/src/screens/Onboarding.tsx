@@ -59,6 +59,11 @@ export function Onboarding({
 
   const noWallet = !hasInjectedWallet();
 
+  // What it takes to leave onboarding. Demo: a connected wallet (your identity
+  // for the board and squads) — unless there's no wallet to connect at all, in
+  // which case we don't dead-end the visitor. Live: funded, as before.
+  const canEnter = mode === "demo" ? walletConnected || noWallet : funded;
+
   return (
     <div className={`app${step === 0 ? " app-chooser" : ""}`}>
       <div className="screen" style={{ paddingTop: step === 0 ? 16 : 26, gap: 18 }}>
@@ -75,7 +80,12 @@ export function Onboarding({
               <button
                 type="button"
                 className="chooser-card sticker chooser-left"
-                onClick={() => (accepted ? onEnter() : setStep(1))}
+                onClick={() => {
+                  if (!accepted) return setStep(1);
+                  // accepted before, but a wallet is required now — send them to
+                  // the connect step unless they genuinely have no wallet to connect
+                  return walletConnected || noWallet ? onEnter() : setStep(2);
+                }}
               >
                 <span className="chooser-card-fx">
                   <Mascot mood="idle" size={66} />
@@ -138,16 +148,17 @@ export function Onboarding({
           <Sticker className="stack" style={{ gap: 14 }}>
             <div className="row-between">
               <h2 style={{ fontSize: 28 }}>
-                {mode === "demo" ? "You're all set" : "Connect your wallet"}
+                {mode === "demo" && walletConnected ? "You're all set" : "Connect your wallet"}
               </h2>
-              <Mascot mood={funded ? "win" : "watching"} size={54} />
+              <Mascot mood={canEnter ? "win" : "watching"} size={54} />
             </div>
 
             {mode === "demo" ? (
               <>
                 <Bubble tone="warn">
                   <strong>Demo mode.</strong> You've got {usd(balances?.usd ?? 50)} of play money and a
-                  local round engine dealing rounds. Nothing here touches a chain.
+                  local round engine dealing rounds. Nothing here touches a chain — connecting is just
+                  so your calls, streak and squad are tied to your address.
                 </Bubble>
 
                 {walletConnected ? (
@@ -159,21 +170,33 @@ export function Onboarding({
                       Disconnect
                     </Btn>
                   </div>
+                ) : noWallet ? (
+                  <Bubble>
+                    No browser wallet found. Install{" "}
+                    <a href="https://metamask.io/download/" target="_blank" rel="noreferrer">
+                      MetaMask
+                    </a>
+                    ,{" "}
+                    <a href="https://www.okx.com/web3" target="_blank" rel="noreferrer">
+                      OKX Wallet
+                    </a>{" "}
+                    or{" "}
+                    <a href="https://rabby.io/" target="_blank" rel="noreferrer">
+                      Rabby
+                    </a>{" "}
+                    to play as yourself — or carry on into the demo without one.
+                  </Bubble>
                 ) : (
                   <div className="stack" style={{ gap: 6 }}>
-                    <Btn small disabled={connecting || noWallet} onClick={() => void doConnect()}>
-                      {connecting ? "Check your wallet…" : "Connect a wallet — optional"}
+                    <Btn small disabled={connecting} onClick={() => void doConnect()}>
+                      {connecting ? "Check your wallet…" : "Connect wallet"}
                     </Btn>
                     <p className="tiny dim">
-                      Play money either way. Connecting just puts your real address on the leaderboard.
+                      Still play money — no network switch, nothing to sign. Your address is just your
+                      identity here.
                     </p>
                   </div>
                 )}
-
-                <p className="tiny dim">
-                  Set <code>NEXT_PUBLIC_MODE=live</code> and point <code>NEXT_PUBLIC_API_URL</code> at the
-                  backend to play the real thing.
-                </p>
               </>
             ) : walletConnected ? (
               <>
@@ -241,16 +264,16 @@ export function Onboarding({
             <Btn
               tone="gold"
               block
-              disabled={!funded}
+              disabled={!canEnter}
               onClick={() => {
                 accept();
                 onEnter();
               }}
             >
-              {funded
+              {canEnter
                 ? "Done — let's play"
                 : mode === "demo"
-                  ? "One sec…"
+                  ? "Connect your wallet to continue"
                   : walletConnected
                     ? "Waiting for funds…"
                     : "Connect a wallet to continue"}

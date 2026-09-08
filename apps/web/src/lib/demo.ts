@@ -35,7 +35,9 @@ import type {
 } from "./types";
 import { INTERVALS, SLIP_MAX_LEGS } from "./types";
 import { PlayerFacingError, type Gateway, type PlaceArgs } from "./gateway";
-import { connect as connectInjected, forget as forgetWallet } from "./wallet";
+import { connect as connectInjected, restore as restoreWallet, forget as forgetWallet, type Connection } from "./wallet";
+import { SQUADS_URL } from "./env";
+import { SocialClient } from "./social";
 
 const STORE = "calledit.demo.v1";
 const START_BALANCE = 50;
@@ -157,6 +159,12 @@ export class DemoGateway implements Gateway {
   private lastTick = 0;
   private started = false;
 
+  /** Set when a squads backend is configured — carries rooms + the global
+   *  leaderboard so an invite works across devices. Null → squads stay local. */
+  private readonly social = SQUADS_URL ? new SocialClient(SQUADS_URL) : null;
+  /** The live wallet connection, needed to sign the squads login. */
+  private conn: Connection | null = null;
+
   constructor() {
     this.state = load() ?? {
       address: fakeAddress(),
@@ -176,10 +184,12 @@ export class DemoGateway implements Gateway {
     return this.state.connected ?? false;
   }
 
-  /** Optional in demo: attach a real wallet so your address is the one on the
-   *  board. Still play money — no network switch, no signing. */
+  /** Required to play: attach a real wallet so your address is your identity on
+   *  the board and in squads. Still play money — no network switch. The squads
+   *  login signature is deferred to the first squad action (see `authSocial`). */
   async connectWallet(): Promise<void> {
     const conn = await connectInjected({ switchChain: false });
+    this.conn = conn;
     this.state.address = conn.address;
     this.state.connected = true;
     this.save();
@@ -188,6 +198,8 @@ export class DemoGateway implements Gateway {
 
   async disconnectWallet(): Promise<void> {
     forgetWallet();
+    this.social?.forget();
+    this.conn = null;
     this.state.address = fakeAddress();
     this.state.connected = false;
     this.save();
@@ -198,11 +210,32 @@ export class DemoGateway implements Gateway {
   async connect(): Promise<void> {
     if (this.started) return;
     this.started = true;
+    // repopulate the wallet connection for a returning player, so squad actions
+    // can sign without a fresh connect prompt. If the wallet no longer
+    // authorises us, drop the stale "connected" flag — the compulsory-wallet
+    // gate then sends them back to reconnect.
+    if (this.state.connected) {
+      const restored = await restoreWallet().catch(() => null);
+      if (restored) this.conn = restored;
+      else {
+        this.state.connected = false;
+        this.save();
+      }
+    }
     for (const asset of ["BTC", "ETH"] as Asset[]) {
       for (const iv of DEMO_INTERVALS) this.deal(asset, iv.sec);
     }
     this.backfillHistory();
     this.start();
+  }
+
+  /** Sign the squads login once, lazily. Throws PlayerFacingError if declined. */
+  private async authSocial(): Promise<boolean> {
+    if (!this.social) return false;
+    if (this.social.authed) return true;
+    if (!this.conn) this.conn = await connectInjected({ switchChain: false });
+    await this.social.auth(this.conn);
+    return true;
   }
 
   // ------------------------------------------------------------ the engine --
@@ -332,6 +365,24 @@ export class DemoGateway implements Gateway {
         streakCurrent: streak.current,
         streakBest: streak.best,
       });
+
+      // report the settled play-money call so squad boards + the global
+      // leaderboard are shared and real. Practice-window calls don't count.
+      if (this.social?.authed && call.intervalSec !== DEMO_PRACTICE_SEC) {
+        void this.social
+          .reportCall({
+            marketId: call.marketId,
+            side: call.side,
+            chipUsd: call.chipUsd,
+            contracts: call.contracts,
+            spent: call.spent,
+            avgPrice: call.avgPrice,
+            outcome: call.outcome as "won" | "lost" | "void",
+            payout: call.payout ?? 0,
+            roomId: call.roomId,
+          })
+          .catch(() => undefined);
+      }
     }
     this.save();
   }
@@ -464,21 +515,31 @@ export class DemoGateway implements Gateway {
   }
 
   async leaderboard(limit = 25): Promise<LeaderRow[]> {
+    const house = HOUSE.map((h) => ({
+      address: h.address,
+      handle: h.handle,
+      current: h.current,
+      best: h.best,
+      totalCalls: h.calls,
+      totalWins: h.wins,
+      winRate: Math.round((h.wins / h.calls) * 100) / 100,
+      netUsd: h.net,
+      multiplier: h.current >= 10 ? 3 : h.current >= 5 ? 2 : h.current >= 3 ? 1.5 : 1,
+    }));
+
+    // real players from the squads backend, sat alongside the house regulars
+    if (this.social) {
+      const real = await this.social.leaderboard(limit).catch(() => null);
+      if (real) {
+        const seen = new Set(real.map((r) => r.address.toLowerCase()));
+        const merged = [...real, ...house.filter((h) => !seen.has(h.address.toLowerCase()))];
+        merged.sort((a, b) => b.best - a.best || b.netUsd - a.netUsd);
+        return merged.slice(0, limit).map((r, i) => ({ ...r, rank: i + 1 }));
+      }
+    }
+
     const me = this.streak();
-    const rows = [
-      ...HOUSE.map((h) => ({
-        address: h.address,
-        handle: h.handle,
-        current: h.current,
-        best: h.best,
-        totalCalls: h.calls,
-        totalWins: h.wins,
-        winRate: Math.round((h.wins / h.calls) * 100) / 100,
-        netUsd: h.net,
-        multiplier: h.current >= 10 ? 3 : h.current >= 5 ? 2 : h.current >= 3 ? 1.5 : 1,
-      })),
-      { address: this.state.address, handle: this.state.handle, ...me },
-    ];
+    const rows = [...house, { address: this.state.address, handle: this.state.handle, ...me }];
     rows.sort((a, b) => b.best - a.best || b.netUsd - a.netUsd);
     return rows.slice(0, limit).map((r, i) => ({ rank: i + 1, ...r }));
   }
@@ -490,23 +551,46 @@ export class DemoGateway implements Gateway {
   }
 
   // ------------------------------------------------------------- the rooms --
+  //
+  // With a squads backend configured (SQUADS_URL) these hit it, so an invite
+  // link works across devices and everyone in a room shares one board. Without
+  // one they stay local to this browser (the id still works as a single-device
+  // "private table", just not a shared one).
 
   async createRoom(name: string): Promise<Room> {
+    const clean = name.slice(0, 32);
+    if (this.social) {
+      await this.authSocial();
+      const made = await this.social.createRoom(clean);
+      this.state.rooms.push({ id: made.id, name: made.name, joinedAt: now() });
+      this.save();
+      return made;
+    }
     const id = Math.random().toString(36).slice(2, 8);
-    this.state.rooms.push({ id, name: name.slice(0, 32), joinedAt: now() });
+    this.state.rooms.push({ id, name: clean, joinedAt: now() });
     this.save();
-    return { id, name };
+    return { id, name: clean };
   }
 
-  async joinRoom(id: string): Promise<RoomDetail> {
+  async joinRoom(id: string, name?: string): Promise<RoomDetail> {
+    if (this.social) {
+      await this.authSocial();
+      const detail = await this.social.joinRoom(id);
+      if (!this.state.rooms.some((r) => r.id === detail.id)) {
+        this.state.rooms.push({ id: detail.id, name: detail.name, joinedAt: now() });
+        this.save();
+      }
+      return detail;
+    }
     if (!this.state.rooms.some((r) => r.id === id)) {
-      this.state.rooms.push({ id, name: `Squad ${id}`, joinedAt: now() });
+      this.state.rooms.push({ id, name: name?.slice(0, 32) || `Squad ${id}`, joinedAt: now() });
       this.save();
     }
     return this.room(id);
   }
 
   async room(id: string): Promise<RoomDetail> {
+    if (this.social) return this.social.room(id);
     const room = this.state.rooms.find((r) => r.id === id);
     if (!room) throw new PlayerFacingError("That squad has gone quiet", "No room with that link.");
     const me = this.streak();
@@ -833,6 +917,8 @@ export class DemoGateway implements Gateway {
   reset(): void {
     localStorage.removeItem(STORE);
     forgetWallet();
+    this.social?.forget();
+    this.conn = null;
     this.state = { address: fakeAddress(), connected: false, handle: null, balance: START_BALANCE, calls: [], rooms: [], slips: [] };
     this.save();
   }

@@ -10,7 +10,11 @@ import { startTelegramNotifier } from "./telegram.js";
 async function main(): Promise<void> {
   const app = await buildServer();
 
-  startIndexer();
+  if (env.socialOnly) {
+    app.log.info("SOCIAL_ONLY — indexer off, serving auth + squads + leaderboard only");
+  } else {
+    startIndexer();
+  }
   startTelegramNotifier();
 
   await app.listen({ port: env.port, host: "0.0.0.0" });

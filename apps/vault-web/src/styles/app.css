@@ -4,16 +4,55 @@
 * { margin: 0; }
 
 html, body { height: 100%; }
+html { background: var(--paper); }
 #root { min-height: 100%; }
 
 body {
   font-family: var(--font-body);
   font-weight: 500;
   color: var(--text);
-  background: var(--paper);
-  background-image: radial-gradient(120% 60% at 50% 0, var(--paper-glow) 0, var(--paper-2) 45%, var(--paper) 100%);
-  background-attachment: fixed;
+  /* the fixed <Backdrop/> (components/Backdrop.tsx) is the ground now */
+  background: transparent;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------- moving backdrop --
+ * The same looping metaballs video as the game, bent toward the palette and
+ * buried under a deep-purple wash + vignette. Every .card is opaque, so the
+ * video mostly reads in the page margins and the gaps between cards; it stays
+ * fixed while the page scrolls over it. Off under prefers-reduced-motion.
+ */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: var(--paper);
+  pointer-events: none;
+}
+.backdrop-video {
+  position: absolute;
+  inset: -2%;
+  width: 104%;
+  height: 104%;
+  object-fit: cover;
+  filter: saturate(0.85) brightness(0.62) contrast(1.05);
+}
+.backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      130% 100% at 50% 0%,
+      rgba(53, 16, 74, 0.24) 0%,
+      rgba(21, 3, 32, 0.7) 52%,
+      rgba(11, 4, 22, 0.9) 100%
+    ),
+    linear-gradient(180deg, rgba(43, 12, 66, 0.44) 0%, rgba(21, 3, 32, 0.64) 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-video { display: none; }
 }
 
 button, input { font: inherit; color: inherit; }
@@ -43,6 +82,15 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
 .tag { font-size: 12px; color: var(--text-dim); }
 .back-link { color: var(--sky); text-decoration: none; font-weight: 600; }
 .back-link:hover { text-decoration: underline; }
+
+/* header + intro + footer text sits directly on the moving backdrop — a soft
+ * dark halo keeps it readable over the video's brighter frames */
+.topbar h1,
+.tag,
+.hero-tag,
+.footer {
+  text-shadow: 0 1px 10px rgba(11, 4, 22, 0.75), 0 0 2px rgba(11, 4, 22, 0.6);
+}
 
 .wallet-pill {
   display: inline-flex; align-items: center; gap: 6px;
