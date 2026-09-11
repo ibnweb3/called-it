@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Btn } from "./components/kit";
-import { IntroReel } from "./components/IntroReel";
+import { PriceChart } from "./components/PriceChart";
 import { Wordmark } from "./components/Wordmark";
 import { CallFlow } from "./components/CallFlow";
 import { ResultScreen } from "./components/ResultScreen";
@@ -149,11 +149,11 @@ export default function App() {
       )}
 
       <main className="stage">
-        {/* the empty space beside the box on a wide screen — decorative, so it
-            is hidden from the tab order and from assistive tech */}
+        {/* the empty space beside the box on a wide screen — a live read of
+            the asset in play, not just decoration; still hidden from the tab
+            order and from assistive tech since PriceChart is a nice-to-have */}
         <div className="hero" aria-hidden="true">
-          <Wordmark className="hero-mark" />
-          <IntroReel />
+          <PriceChart />
         </div>
 
         <div className="game-box">

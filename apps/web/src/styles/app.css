@@ -197,7 +197,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
  * own explicit width instead of wrapping inside it. */
 .stage > * { min-width: 0; }
 
-/* the "CALLED IT" lockup that fills the empty space beside the box on a wide
+/* the live price chart that fills the empty space beside the box on a wide
  * screen. Purely decorative — hidden from the tab order and from a screen
  * reader, and hidden outright until there is genuinely room for it. */
 .hero {
@@ -208,7 +208,36 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.
   gap: 14px;
   max-width: 420px;
 }
-.hero .wordmark { margin-bottom: 2px; --wm-size: clamp(220px, 22vw, 340px); }
+
+/* ------------------------------------------------------------ price chart --
+ * Replaces the wordmark that used to sit here: a live line of the asset
+ * actually in play, colour-coded green/red against the round's own opening
+ * line rather than decoration for its own sake.
+ */
+.hero .price-chart { width: 100%; max-width: 340px; }
+
+.price-chart { display: grid; gap: 8px; padding: 14px; }
+.price-chart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.price-chart-asset { background: var(--gold); color: var(--ink); border-color: var(--ink); font-weight: 700; }
+.price-chart-now { display: flex; align-items: baseline; gap: 6px; }
+.price-chart-now .num:first-child { font-size: 17px; }
+.price-chart-now .num:last-child { font-size: 12px; }
+.price-chart-svg {
+  width: 100%;
+  height: clamp(130px, 16vw, 170px);
+  display: block;
+  overflow: visible;
+}
+.price-chart-skel { min-height: 130px; border-radius: var(--r-sm); }
+.price-chart-dot { animation: price-chart-pulse 1.8s ease-out infinite; }
+@keyframes price-chart-pulse {
+  0% { r: 4; opacity: 1; }
+  70%, 100% { r: 10; opacity: 0; }
+}
+.price-chart-line-label { text-align: right; }
+@media (prefers-reduced-motion: reduce) {
+  .price-chart-dot { animation: none; }
+}
 
 /* ---------------------------------------------------------------- wordmark
  * The comic-burst "CALLED IT" logo. It idles with the same hanging-sign wobble
