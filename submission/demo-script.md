@@ -23,9 +23,9 @@ can own → watch the money move → withdraw.*
    Croupier's quote.
 5. **Terminal** at the repo root, font size bumped, `.env` set to
    `DRY_RUN=false`, `CROUPIER_FAIR=curve`,
-   `CROUPIER_FLOAT=0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262`.
+   `CROUPIER_FLOAT=0x10D2Dd3864Eb090Eb89599795c59de228C528DDf`.
 6. Notifications off. One clean browser window. Explorer open in a tab:
-   https://shannon-explorer.somnia.network/address/0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262
+   https://shannon-explorer.somnia.network/address/0x10D2Dd3864Eb090Eb89599795c59de228C528DDf
 7. Dry-run the whole thing once without recording.
 
 ---

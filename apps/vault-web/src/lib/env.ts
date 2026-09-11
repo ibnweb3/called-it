@@ -7,7 +7,7 @@
 //
 // The vault address is public on-chain data, not a secret — safe to commit.
 
-const DEFAULT_VAULT_ADDRESS = "0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262";
+const DEFAULT_VAULT_ADDRESS = "0x10D2Dd3864Eb090Eb89599795c59de228C528DDf";
 
 export const NETWORK = (import.meta.env.VITE_NETWORK ?? "testnet") as "testnet" | "mainnet";
 export const IS_TESTNET = NETWORK === "testnet";

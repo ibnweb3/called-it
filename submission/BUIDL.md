@@ -129,7 +129,7 @@ Every rule lives on-chain, in `contracts/src/CalledItFloat.sol` (ERC-4626):
 |---|---|
 | **Play** | https://calledit-somnia.pages.dev |
 | **Own the house** | https://calledit-somnia.pages.dev/house |
-| Housepool vault (`CalledItFloat` · `HPOOL`) | [`0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262`](https://shannon-explorer.somnia.network/address/0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262) |
+| Housepool vault (`CalledItFloat` · `HPOOL`) | [`0x10D2Dd3864Eb090Eb89599795c59de228C528DDf`](https://shannon-explorer.somnia.network/address/0x10D2Dd3864Eb090Eb89599795c59de228C528DDf) |
 | Deposit token (tUSDC, 6dp) | `0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E` — public `faucet(uint256)`, mint your own |
 
 Every vault operation — deposit, borrow, settle, prize cut, redeem — is verified

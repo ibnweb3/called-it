@@ -5,7 +5,7 @@ Two things here:
 1. **Voiceover script** — paste into any TTS (ElevenLabs, OpenAI, Play.ht…). ~2:55 at a normal pace.
 2. **Webapp walkthrough** — exactly what to click, segment by segment, synced to the script.
 
-Live state verified 2026-09-10: vault `0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262`
+Live state verified 2026-09-10: vault `0x10D2Dd3864Eb090Eb89599795c59de228C528DDf`
 holds **150 tUSDC**, share price **1.000000**, no open session. Bot wallet has
 **3.75 STT** gas. Owner wallet `0x8BE860…8113` has **0.20 STT + ~11,387 tUSDC**.
 
@@ -109,7 +109,7 @@ So the game always has a house, which means it always works, with a real price o
 5. **Second terminal:** `npm test -w @called-it/curve` → leave `✓ 14 passed` on screen.
 6. **Three browser tabs:** (a) the game `calledit-somnia.pages.dev`,
    (b) the dashboard `.../house`, (c) the explorer
-   `https://shannon-explorer.somnia.network/address/0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262`
+   `https://shannon-explorer.somnia.network/address/0x10D2Dd3864Eb090Eb89599795c59de228C528DDf`
 7. Notifications off. Terminal font large. Screen recorder ready.
 
 ---
