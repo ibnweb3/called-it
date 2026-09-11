@@ -1,0 +1,70 @@
+name: Croupier (cloud)
+
+# Runs the market-maker bot on GitHub's infra instead of anyone's laptop.
+# Free: public repos get unlimited Actions minutes, no card required.
+#
+# GitHub Actions has no "run forever" primitive, so this fakes it: each job
+# runs the bot for ~5h50m then lets it self-stop (SIGTERM straight to the
+# process → its own graceful settle-then-exit path), well inside GitHub's
+# hard 6-hour-per-job ceiling. A new job starts on the next 6-hour tick, so
+# there's a real bot session live essentially all the time, with a small gap
+# every 6 hours and whatever jitter GitHub's scheduler adds under load (its
+# docs say scheduled runs can be delayed, occasionally by a fair bit).
+#
+# Setup (one time): Settings → Secrets and variables → Actions →
+# New repository secret → name it CROUPIER_PRIVATE_KEY → paste the bot
+# wallet's private key → Add secret. Never put it in this file.
+#
+# Manual run any time: Actions tab → "Croupier (cloud)" → Run workflow.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: croupier
+  cancel-in-progress: false # queue, never run two instances against one wallet
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360 # GitHub's own hard per-job ceiling
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: install (croupier + its two workspace deps only)
+        run: npm ci --workspace croupier --workspace @called-it/curve --workspace @dreamdex-bot-kit/ec-core --include-workspace-root --ignore-scripts
+
+      # exec tsx directly (not `npm start`) so SIGTERM reaches the bot process
+      # itself; --preserve-status so a clean self-stop shows the job as green,
+      # not a false "timed out" failure.
+      - name: run the croupier (~5h50m, then it settles and exits on its own)
+        env:
+          PRIVATE_KEY: ${{ secrets.CROUPIER_PRIVATE_KEY }}
+          NETWORK: testnet
+          DRY_RUN: "false"
+          CROUPIER_FAIR: curve
+          MM_LOT: "1000"
+          FAUCET_ENABLED: "false"
+          MM_INVENTORY: "3"
+          CROUPIER_QUOTE_SIZE: "8"
+          CROUPIER_FLOAT_CYCLE_MS: "1800000"
+          CROUPIER_MAX_DAY_LOSS: "500"
+          CROUPIER_MAX_WINDOW_SEC: "0"
+          CROUPIER_FLOAT: "0xED23B3B28bECB8AF4dA4928e91E89B86E2B7e262"
+          VENUE_ID: "0x679795a0195a1b76cdebb7c51d74e058aee92919b8c3389af86ef24535e8a28c"
+          FLOAT_OPERATOR: "0x31Fd1429eC6280BdaC1338221444167911549Fc1"
+          FLOAT_CROUPIER_WALLET: "0x31Fd1429eC6280BdaC1338221444167911549Fc1"
+          FLOAT_ASSET: "0x70a86D8842FB63C4Ad2b7cdddF530eBf1BB25d8E"
+          FLOAT_OWNER: "0x8BE860A6ce4696BBa9eB35C64D340b7d7E698113"
+          FLOAT_PRIZE_POOL: "0x8BE860A6ce4696BBa9eB35C64D340b7d7E698113"
+          FLOAT_PRIZE_BPS: "1000"
+          FLOAT_MAX_BORROW: "100000000"
+          FLOAT_MAX_RATIO_BPS: "5000"
+          FLOAT_MAX_SESSION_H: "26"
+        run: timeout --preserve-status 21000 node_modules/.bin/tsx apps/croupier/src/index.ts
