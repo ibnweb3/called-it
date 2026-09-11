@@ -12,7 +12,36 @@ installs only the croupier + its two workspace deps, ~130 packages). It execs
 reaches the bot itself and its graceful shutdown (settle the open session,
 then exit) actually runs on a restart or redeploy.
 
-## Option A — Oracle Cloud Always Free (recommended: actually free, never sleeps)
+## Option 0 — GitHub Actions (recommended: no card, no new account, free)
+
+Already set up — `.github/workflows/croupier.yml` is in the repo. Public repos
+get unlimited free Actions minutes. GitHub has no "run forever" primitive, so
+this runs the bot in ~5h50m windows on a 6-hour cron, self-stopping gracefully
+just inside GitHub's own 6-hour job ceiling, then starting fresh on the next
+tick — a real session live essentially all the time, with a small gap every
+6 hours (plus whatever scheduling jitter GitHub adds under load).
+
+**One-time setup, in the GitHub UI only:**
+1. `github.com/ibnweb3/called-it` → **Settings** → **Secrets and variables** →
+   **Actions** → **New repository secret**.
+2. Name: `CROUPIER_PRIVATE_KEY`. Value: the bot wallet's private key. **Add secret.**
+   (Never paste it anywhere else — not in chat, not in a file.)
+3. **Actions** tab → **Croupier (cloud)** → **Run workflow** to start it right
+   now instead of waiting for the next cron tick.
+4. Click into the run → watch the log for `float: borrowed … tUSDC from
+   0xED23B3B2…` then a `quote …` line.
+
+That's it — it now runs regardless of your laptop. Since Actions minutes on a
+public repo are unlimited, you can leave the schedule running through judging.
+
+**Watch it:** the Actions tab shows every run, green when it self-stopped
+cleanly. Bot wallet gas will drain a bit faster than one long-lived process
+(a small borrow/settle overhead every ~6h) — check its STT balance every day
+or two and top it up from the Somnia faucet if it's getting low.
+
+---
+
+## Option A — Oracle Cloud Always Free (a real always-on VM, if you can get an account)
 
 A real ARM VM, free forever, no traffic-based sleep. Card required at signup
 (not charged on the free tier); pick a region where Ampere A1 capacity is
