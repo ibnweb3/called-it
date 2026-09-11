@@ -210,23 +210,29 @@ export class DemoGateway implements Gateway {
   async connect(): Promise<void> {
     if (this.started) return;
     this.started = true;
+    // Deal + start ticking first, unconditionally — the round engine must never
+    // wait on a wallet call. The wallet restore below can be slow (a sluggish
+    // extension) or, in the worst case, never resolve; it used to run BEFORE
+    // this, which could leave a round dealt but never ticking.
+    for (const asset of ["BTC", "ETH"] as Asset[]) {
+      for (const iv of DEMO_INTERVALS) this.deal(asset, iv.sec);
+    }
+    this.backfillHistory();
+    this.start();
+
     // repopulate the wallet connection for a returning player, so squad actions
     // can sign without a fresh connect prompt. If the wallet no longer
     // authorises us, drop the stale "connected" flag — the compulsory-wallet
-    // gate then sends them back to reconnect.
+    // gate then sends them back to reconnect. Bounded so a stuck wallet call
+    // can never hang boot().
     if (this.state.connected) {
-      const restored = await restoreWallet().catch(() => null);
+      const restored = await Promise.race([restoreWallet(), timeout(4000)]).catch(() => null);
       if (restored) this.conn = restored;
       else {
         this.state.connected = false;
         this.save();
       }
     }
-    for (const asset of ["BTC", "ETH"] as Asset[]) {
-      for (const iv of DEMO_INTERVALS) this.deal(asset, iv.sec);
-    }
-    this.backfillHistory();
-    this.start();
   }
 
   /** Sign the squads login once, lazily. Throws PlayerFacingError if declined. */
@@ -967,3 +973,5 @@ export function badgesFor(s: Streak): Badge[] {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Resolves to `null` after `ms` — races against a call that might hang. */
+const timeout = (ms: number) => new Promise<null>((r) => setTimeout(() => r(null), ms));
